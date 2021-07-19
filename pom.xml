@@ -58,17 +58,33 @@
 		  <artifactId>joda-time</artifactId>
 		  <version>2.10.10</version>
 		</dependency>
-	
-				
+		<!-- JWT -->
+	   <dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.9.1</version>
+		</dependency> 
+		<!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+		<dependency>
+		    <groupId>org.xerial</groupId>
+		    <artifactId>sqlite-jdbc</artifactId>
+		    <version>3.7.2</version>
+		</dependency>
 				
 		<!-- SSE events -->
-		<!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core 
+		<!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
 		<dependency>
 		    <groupId>io.projectreactor</groupId>
 		    <artifactId>reactor-core</artifactId>
 		    <version>3.4.6</version>
-		</dependency>-->
+		</dependency>
+		
 				
-				
+		<dependency>
+		    <groupId>com.sparkjava</groupId>
+		    <artifactId>spark-template-velocity</artifactId>
+		    <version>2.7.1</version>
+		</dependency>
+		
 	</dependencies>
 </project>

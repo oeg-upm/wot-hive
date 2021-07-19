@@ -7,7 +7,8 @@ import java.util.Optional;
 
 import org.apache.jena.riot.RDFFormat;
 
-import spark.Request;
+import spark.ModelAndView;
+import spark.template.velocity.VelocityTemplateEngine;
 
 public class Utils {
 
@@ -83,11 +84,8 @@ public class Utils {
 		return message.toString();
 	}
 	
-	public static void createLogEntry(long startTime, Request request) {
-		long timeElapsed = (System.nanoTime() - startTime) / 1000000;
-		String logMessage = Utils.buildMessage(request.requestMethod(), " ", request.pathInfo()," - ", String.valueOf(timeElapsed) , " ms");
-		System.out.println(logMessage);
-		Directory.LOGGER.info(logMessage);		
+	public static String render(Map<String, Object> model, String templatePath) {
+	    return new VelocityTemplateEngine().render(new ModelAndView(model, templatePath));
 	}
 	
 }

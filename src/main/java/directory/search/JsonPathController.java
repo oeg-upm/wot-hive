@@ -13,11 +13,11 @@ import com.jayway.jsonpath.PathNotFoundException;
 
 import directory.Utils;
 import directory.exceptions.SearchJsonPathException;
-import directory.td.ThingsDAO;
 import net.minidev.json.JSONArray;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+import things.ThingsDAO;
 import wot.jtd.model.Thing;
 
 public class JsonPathController {
@@ -39,14 +39,9 @@ public class JsonPathController {
 	};
     
 	private static JsonPath checkJsonPath(String jsonPath) {
-		JsonPath path = null;
-		try {
-			path = JsonPath.compile(jsonPath);
-			if(!jsonPath.startsWith("$"))
-				throw new SearchJsonPathException(SearchJsonPathException.EXCEPTION_CODE_2);
-		}catch(Exception e ) {
+		JsonPath path = JsonPath.compile(jsonPath);
+		if(!jsonPath.startsWith("$"))
 			throw new SearchJsonPathException(SearchJsonPathException.EXCEPTION_CODE_2);
-		}
 		return path;
 	}
     
@@ -79,7 +74,7 @@ public class JsonPathController {
     		String result = null;
 		try {
 			// Process pathResult as Json
-			result = new ObjectMapper().writeValueAsString((Map<String,Object>) pathResult);
+			result = new ObjectMapper().writeValueAsString(pathResult);
 		}catch(Exception e) { 
 			// Process pathResult as String
 			result = Utils.buildMessage("\"",pathResult.toString(),"\"");
