@@ -1,4 +1,4 @@
-package things;
+package directory.things;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -20,17 +20,15 @@ import wot.jtd.model.Thing;
 public class ThingsController {
 
 	// -- Attributes
-	
 	private static final String LOCATION_HEADER = "Location";
 	private static String eTag = "ev1";
-	// -- Constructor
 	
+	// -- Constructor
 	private ThingsController() {
 		super();
 	}
 	
 	// -- Methods
-	
 	// TODO: add sort_by & sort_order
 	public static final Route listing = (Request request, Response response) -> {
 		RDFFormat format = hasValidMime(request.headers(Utils.HEADER_ACCEPT), false);

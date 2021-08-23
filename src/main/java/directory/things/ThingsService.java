@@ -1,4 +1,4 @@
-package things;
+package directory.things;
 
 import java.io.IOException;
 import org.apache.jena.riot.RDFFormat;

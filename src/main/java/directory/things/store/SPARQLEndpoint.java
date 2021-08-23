@@ -1,4 +1,4 @@
-package directory;
+package directory.things.store;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,14 +9,23 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import directory.Directory;
+import directory.Utils;
 import directory.exceptions.RemoteException;
 
 public class SPARQLEndpoint {
 	
+	// -- Attributes
 	private static URI updateEnpoint = null;
 	private static URI queryEnpoint = null;
 	private static Boolean queryUsingGET = true;
 	
+	// -- Constructor
+	private SPARQLEndpoint() {
+		super();
+	}
+	
+	// -- Getters & Setters
 	public static URI getUpdateSparqlEndpoint() {
 		return updateEnpoint;
 	}
@@ -39,7 +48,7 @@ public class SPARQLEndpoint {
 			if(updateEndpoint!=null)
 				SPARQLEndpoint.updateEnpoint = new URI(updateEndpoint);				
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			Directory.LOGGER.debug(Directory.MARKER_DEBUG_SPARQL, e.toString());
 		}
 	}
 	
@@ -47,16 +56,18 @@ public class SPARQLEndpoint {
 		try {
 			if(queryEndpoint!=null) 
 				SPARQLEndpoint.queryEnpoint = new URI(queryEndpoint);
-		} catch (URISyntaxException e1) {
-			e1.printStackTrace();
+		} catch (URISyntaxException e) {
+			Directory.LOGGER.debug(Directory.MARKER_DEBUG_SPARQL, e.toString());
 		}
 	}
+	
+	// -- Methods
 	
 	public static ByteArrayOutputStream sendUpdateQuery(String query) {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			if(updateEnpoint==null)
-				System.out.println("throw exceoption");
+				throw new RemoteException("SPARQL for updating data is not configured");
 			HttpURLConnection connection = prepareUpdatePOST(updateEnpoint, query.getBytes(), Utils.MIME_TURTLE, "application/sparql-update");
 			int code = connection.getResponseCode();
 			if(200<=code && code<300) {
@@ -66,7 +77,7 @@ public class SPARQLEndpoint {
 			}
 			connection.disconnect();
 		}catch (IOException e) {
-			e.printStackTrace();
+			Directory.LOGGER.debug(Directory.MARKER_DEBUG_SPARQL, e.toString());
 		} 
 		
 		return output;
@@ -89,7 +100,7 @@ public class SPARQLEndpoint {
 		HttpURLConnection connection = null;
 		try {
 			if(queryEnpoint==null)
-				System.out.println("throw exceoption");
+				throw new RemoteException("SPARQL for retrieving data is not configured");
 			if(queryUsingGET) {
 				connection = prepareGET(queryEnpoint, query, mimetype);
 			}else {

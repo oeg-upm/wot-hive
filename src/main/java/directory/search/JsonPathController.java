@@ -3,7 +3,6 @@ package directory.search;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,11 +12,11 @@ import com.jayway.jsonpath.PathNotFoundException;
 
 import directory.Utils;
 import directory.exceptions.SearchJsonPathException;
+import directory.things.ThingsDAO;
 import net.minidev.json.JSONArray;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import things.ThingsDAO;
 import wot.jtd.model.Thing;
 
 public class JsonPathController {
@@ -50,7 +49,6 @@ public class JsonPathController {
     		List<String> result = new ArrayList<>();
     		try {
     			Object pathResult = JsonPath.parse(thing.toJson().toString()).read(path);
-
 			if(!path.isDefinite()) {
 				((JSONArray) pathResult).forEach(elem -> result.add( instantiateJson(elem) ));
 			}else {
@@ -69,7 +67,6 @@ public class JsonPathController {
     
     
     
-    @SuppressWarnings("unchecked")
 	private static String instantiateJson(Object pathResult) {
     		String result = null;
 		try {

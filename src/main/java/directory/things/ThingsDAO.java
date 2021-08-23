@@ -1,4 +1,4 @@
-package things;
+package directory.things;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 import org.apache.jena.riot.RDFFormat;
 import com.google.gson.JsonObject;
 
-import directory.SPARQLEndpoint;
 import directory.Utils;
 import directory.events.EventsController;
 import directory.exceptions.RemoteException;
+import directory.things.store.SPARQLEndpoint;
 import wot.jtd.JTD;
 import wot.jtd.model.Thing;
 

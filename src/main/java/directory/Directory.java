@@ -17,13 +17,30 @@ import static spark.Spark.threadPool;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import static spark.Spark.port;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import javax.servlet.http.HttpServletRequest;
+
+import static spark.Spark.port;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+
+import directory.configuration.DirectoryConfiguration;
 import directory.events.EventsController;
+import directory.exceptions.DirectoryAutenticationException;
+import directory.exceptions.DirectoryAuthorizationException;
 import directory.exceptions.Exceptions;
 import directory.exceptions.RemoteException;
 import directory.exceptions.SearchJsonPathException;
@@ -35,10 +52,15 @@ import directory.exceptions.ThingValidationException;
 import directory.search.JsonPathController;
 import directory.search.SparqlController;
 import directory.search.XPathController;
-import directory.users.SQLFactory;
-import directory.users.SecurityController;
+import directory.security.CredentialsController;
+import directory.security.SecurityController;
+import directory.storage.CredentialsSQLFactory;
+import directory.things.ThingsController;
+import directory.things.store.SPARQLEndpoint;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 import spark.Spark;
-import things.ThingsController;
 import wot.jtd.JTD;
 import wot.jtd.Vocabulary;
 
@@ -47,18 +69,11 @@ public class Directory {
 	private static final String DIRECTORY_VERSION = "WoTHive/0.1.0";
 	// -- Attributes
 	public static final Logger LOGGER = LoggerFactory.getLogger("");
-	public static String DIRECTORY_BASE = "https://oeg.fi.upm.es/directory/";
-	public static int port = 9000;
-	private static int maxThreads = 8;
-	private static int minThreads = 2;
-	private static int timeOutMillis = 30000;
-	public static boolean shaclValidation = true;
-	public static boolean jsonSchemaValidation = true;
-	public static final String SCHEMA_FILE = "./schema.json";
-	public static final String SHAPE_FILE = "./shape.ttl";
-	protected static String JWT_SALT = "12345678901234567890123456789012"; // Security
-
-	 
+	public static final String MARKER_DEBUG_SECURITY = "[SECURITY]";
+	public static final String MARKER_DEBUG_SPARQL = "[REMOTESPARQL]";
+	public static final String MARKER_DEBUG = "[DIRECTORY]";
+	public static final String MARKER_DEBUG_SQL = "[SQL]";
+	public static DirectoryConfiguration configuration;
 	
 	// -- Constructor
 	private Directory() {
@@ -67,10 +82,43 @@ public class Directory {
 	
 	// -- Methods
 	
+	private static DirectoryConfiguration defaultConfiguration() {
+		DirectoryConfiguration configuration = new DirectoryConfiguration();
+		configuration.setId(1);
+		configuration.setDirectoryURIBase("https://oeg.fi.upm.es/wothive/");
+		configuration.setPort(9000);
+		configuration.setMaxThreads(200);
+		configuration.setMinThreads(2);
+		configuration.setTimeOutMillis(30000);
+		configuration.setEnableShaclValidation(true);
+		configuration.setEnableJsonSchemaValidation(true);
+		configuration.setSchemaFile("./schema.json");
+		configuration.setShapesFile("./shape.ttl");
+		configuration.setEnableSecurity(true);
+		return configuration;
+	}
+	
 	private static final void setup() {
-		port(port);
-		threadPool(maxThreads, minThreads, timeOutMillis);
-		JTD.setDefaultRdfNamespace(Directory.DIRECTORY_BASE);
+		Directory.configuration = defaultConfiguration();
+		DirectoryConfiguration configuration = defaultConfiguration();
+        // create a connection source to our database
+		try {
+			
+	        ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:h2:file:./h2");
+	        Dao<DirectoryConfiguration, String> configurationDao = DaoManager.createDao(connectionSource, DirectoryConfiguration.class);
+	        TableUtils.createTableIfNotExists(connectionSource, DirectoryConfiguration.class);
+	        //configurationDao.create(configuration);
+	        configurationDao.update(configuration);
+	        
+	        System.out.println(configurationDao.idExists("1"));
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		port(configuration.getPort());
+		threadPool(configuration.getMaxThreads(), configuration.getMinThreads(), configuration.getTimeOutMillis());
+		JTD.setDefaultRdfNamespace(configuration.getDirectoryURIBase());
 		JTD.removeArrayCompactKey(Vocabulary.SECURITY);
 		SPARQLEndpoint.setQueryUsingGET(true);
 		SPARQLEndpoint.setQuerySparqlEndpoint("http://localhost:4567/sparql");
@@ -78,24 +126,26 @@ public class Directory {
 	}
 	
 	// Adding swagger: https://serol.ro/posts/2016/swagger_sparkjava/
-	public static void main(String[] args) throws UnsupportedEncodingException, IOException {
+	@SuppressWarnings("unchecked")
+	public static void main(String[] args) throws ClassNotFoundException  {
+		Class.forName("org.h2.Driver");
 		LOGGER.info(Utils.WOT_DIRECTORY_LOGO);
 		LOGGER.info("WoTHive service v0.1.0");
-		Spark.staticFiles.location("/public");
 		setup();
 		
+		before("*", (request, response) -> CredentialsSQLFactory.dbStatus());
+		before("*", SecurityController.filterRequests);
+		exception(DirectoryAuthorizationException.class,      DirectoryAuthorizationException.handleException);
 		
-		before("*", (request, response) -> {
-			SQLFactory.dbStatus(); // Assures that db is always correct
-		});
-		
-		// get("/login", SecurityController.login);
-		post("/security/login", SecurityController.login);
-		// WoT API (secured)
-		before("/api/*", SecurityController.filterRequests);
 		path("/api", () -> {
-			
-			path(Path.THINGS, () -> {
+			path("/credentials", () -> {
+				before( "", CredentialsController.filterRequests);
+				get(    "", CredentialsController.retrieveCredentials);
+				post(   "", CredentialsController.updateCredentials);
+				post(   "/jwt", SecurityController.generateToken);
+				exception(DirectoryAutenticationException.class,      DirectoryAutenticationException.handleException);
+			});
+			path("/things", () -> {
 			    get(		"",    	ThingsController.listing);
 			    get(		"/:id",    ThingsController.retrieval);
 			    post(	"/",       ThingsController.registrationAnonymous);
@@ -107,13 +157,10 @@ public class Directory {
 				exception(ThingValidationException.class,      ThingValidationException.handleException);
 				exception(ThingRegistrationException.class,      Exceptions.handleThingRegistrationException);
 				exception(ThingParsingException.class,      Exceptions.handleThingParsingException);
-				exception(RemoteException.class,      Exceptions.handleRemoteException);
+				exception(RemoteException.class,      RemoteException.handleRemoteException);
 				exception(Exception.class,      Exceptions.handleException);
 			});
-			path(Path.EVENTS, () -> {
-			    get(		"",    	EventsController.subscribe);
-			});
-			path(Path.SEARCH, () -> {
+			path("/search", () -> {
 				get("/jsonpath",  JsonPathController.solveJsonPath);
 				exception(SearchJsonPathException.class,     SearchJsonPathException.handleSearchJsonPathException);
 				get("/xpath",    XPathController.solveXPath);
@@ -121,36 +168,43 @@ public class Directory {
 				get("/sparql",   SparqlController.solveSparqlQuery);
 				post("/sparql",  SparqlController.solveSparqlQuery);
 			});
-			
+			path("/events", () -> {
+			    get(		"",    	EventsController.subscribe);
+			});
 		
 		});
 		
 		//initListeningDNSN();
 		//registration();
 	
-		// Using Route
-		notFound((request, response) -> {
-			response.type(Utils.MIME_JSON);
-			response.status(400);
-			response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
-			System.out.println(request.requestMethod()+" "+request.pathInfo()+ " - 400");
-			return "{\"message\":\"error\"}";
-		});
-
-		internalServerError((request, response) -> {
-			response.type(Utils.MIME_JSON);
-			response.status(500);
-			response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
-			System.out.println(request.requestMethod()+" "+request.pathInfo()+ " - 500");
-		    return "{\"message\":\"error\"}";
-		});
+		// Unmatched Routes
+		notFound(handle400Routes);
+		internalServerError(Directory.handle500Routes);
 		
 		after((request, response) -> {
 		    response.header("Server", Directory.DIRECTORY_VERSION);
-		    System.out.println(request.requestMethod()+" "+request.pathInfo());
+			String logStr = Utils.buildMessage(request.requestMethod()," ",request.pathInfo());
+		    Directory.LOGGER.info(logStr);
 		});
-		
 	}
 	
+	
+	private static final Route handle400Routes = (Request request, Response response) -> {		
+		return handleUnmatchedRoutes(request, response, 400);
+	};
+	private static final Route handle500Routes = (Request request, Response response) -> {		
+		return handleUnmatchedRoutes(request, response, 500);
+	};
+	
+	private static String handleUnmatchedRoutes(Request request, Response response, int status) {
+		response.type(Utils.MIME_JSON);
+		response.status(status);
+		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
+		if(Directory.LOGGER.isDebugEnabled()) {
+			String logStr = Utils.buildMessage(request.requestMethod()," ",request.pathInfo()," - ", String.valueOf(status));
+			Directory.LOGGER.debug(MARKER_DEBUG, logStr);
+		}
+	    return "{\"message\":\"error\"}";
+	}
 }
 

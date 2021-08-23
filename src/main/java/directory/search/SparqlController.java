@@ -3,14 +3,16 @@ package directory.search;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 
-import directory.SPARQLEndpoint;
 import directory.Utils;
 import directory.exceptions.SearchSparqlException;
+import directory.things.store.SPARQLEndpoint;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 public class SparqlController {
+	
+	// -- Attributes
 	/** @see: <a href="https://www.w3.org/TR/sparql11-results-json/"> SPARQL documentation </a> **/
 	private static final String MIME_SPARQL_JSON = "application/sparql-results+json";
 	/** @see: <a href="https://www.w3.org/TR/rdf-sparql-XMLres/"> SPARQL documentation </a> **/
@@ -18,13 +20,14 @@ public class SparqlController {
 	/** @see: <a href="https://www.w3.org/TR/2013/REC-sparql11-results-csv-tsv-20130321/"> SPARQL documentation </a>**/
 	private static final String MIME_SPARQL_CSV = "text/csv";
 	private static final String MIME_SPARQL_TSV = "text/tab-separated-values";
-	
 	private static final String MIME_SPARQL_DEFAULT = "*/*";
+	
+	// -- Constructor
 	private SparqlController() {
 		super();
 	}
 	
-	
+	// -- Methods
 	public static final Route solveSparqlQuery = (Request request, Response response) -> {
 		String query = extractQuery(request);
 		if(query==null)
