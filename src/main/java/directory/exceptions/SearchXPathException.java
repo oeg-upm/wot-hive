@@ -28,6 +28,8 @@ public class SearchXPathException  extends RuntimeException {
 	public static final String EXCEPTION_CODE_2 = "searchXPath-002"; // xpath path invalid syntax
 	public static final String EXCEPTION_CODE_3 = "searchXPath-003"; // error applying xpath over json
 	
+
+	@SuppressWarnings("rawtypes")
 	public static final ExceptionHandler handleSearchXPathException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(400);

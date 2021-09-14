@@ -7,8 +7,6 @@ import java.util.Optional;
 
 import org.apache.jena.riot.RDFFormat;
 
-import spark.ModelAndView;
-import spark.template.velocity.VelocityTemplateEngine;
 
 public class Utils {
 
@@ -27,8 +25,8 @@ public class Utils {
 	public static final String METHOD_PUT = "PUT";
 	
 	public static final String MIME_DIRECTORY_ERROR = "application/problem+json";
-	
-	protected static final String WOT_DIRECTORY_LOGO = ""+
+	protected static final String DIRECTORY_VERSION = "WoTHive/0.1.0";
+	protected static final String WOT_DIRECTORY_LOGO = "\n"+
 			"██╗    ██╗ ██████╗ ████████╗\n" + 
 			"██║    ██║██╔═══██╗╚══██╔══╝\n" + 
 			"██║ █╗ ██║██║   ██║   ██║   \n" + 
@@ -42,7 +40,8 @@ public class Utils {
 			"██╔══██║██║╚██╗ ██╔╝██╔══╝  \n" + 
 			"██║  ██║██║ ╚████╔╝ ███████╗\n" + 
 			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝\n" + 
-			"\t\tby Andrea Cimmino Arriaga";
+			"\t© Ontology Engineering Group at Universidad Politectnica de Madrid\n"+
+			"\tAuthor: Andrea Cimmino\n";
 
 	
 	
@@ -84,8 +83,21 @@ public class Utils {
 		return message.toString();
 	}
 	
-	public static String render(Map<String, Object> model, String templatePath) {
-	    return new VelocityTemplateEngine().render(new ModelAndView(model, templatePath));
+	private static final String SERVICE_PORT= "--service.port=";
+	protected static Integer parseArgumentPort(String[] args, int defaultPort) {
+		int port = defaultPort;
+		try {
+			if(args!=null && args.length>0) {
+				String newPort = args[0];
+				if(newPort.startsWith(SERVICE_PORT))
+					port = Integer.parseInt(newPort.substring(0, SERVICE_PORT.length()));
+			}
+		}catch(Exception e) {
+			throw new IllegalArgumentException("Port for running the service must be provided as argument using the flag '--service.port='");
+		}
+		return port;	
 	}
+	
+	
 	
 }

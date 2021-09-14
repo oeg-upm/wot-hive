@@ -84,7 +84,6 @@ public class ThingsService {
 			markModification(updatedThing);
 			ThingsService.registerJsonThing(graphId, updatedThing.toJson().toString());
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new ThingParsingException(e.toString());
 		} catch (JsonPatchException e) {
 			throw new ThingRegistrationException(e.toString());

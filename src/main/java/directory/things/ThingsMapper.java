@@ -48,7 +48,7 @@ public class ThingsMapper {
 				return thingToRDF(thing, format);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Directory.LOGGER.error(e.toString());
 		}
 		return "";
 	}
@@ -123,12 +123,12 @@ public class ThingsMapper {
 		try {
 			Model model = ModelFactory.createDefaultModel();
 			RDFReader reader = model.getReader(format.getLang().getName().toLowerCase());
-			reader.read(model, new ByteArrayInputStream(td.getBytes()), Directory.configuration.getDirectoryURIBase());
+			reader.read(model, new ByteArrayInputStream(td.getBytes()), Directory.getConfiguration().getService().getDirectoryURIBase());
 			things = JTD.fromRDF(model);
 		} catch (SchemaValidationException | IllegalArgumentException e) {
 			throw new ThingParsingException(e.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			Directory.LOGGER.error(e.toString());
 		}
 
 		return things;
@@ -143,7 +143,7 @@ public class ThingsMapper {
 		}
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		RDFWriter fasterWriter = model.getWriter(format.getLang().getLabel());
-		fasterWriter.write(model, output, Directory.configuration.getDirectoryURIBase());
+		fasterWriter.write(model, output, Directory.getConfiguration().getService().getDirectoryURIBase());
 
 		ThingsMapper.semanticValidation(thing.getId(), model);
 		return new String(output.toByteArray());
@@ -158,7 +158,7 @@ public class ThingsMapper {
 		}
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		RDFWriter fasterWriter = model.getWriter(format.getLang().getLabel());
-		fasterWriter.write(model, output, Directory.configuration.getDirectoryURIBase());
+		fasterWriter.write(model, output, Directory.getConfiguration().getService().getDirectoryURIBase());
 
 		return new String(output.toByteArray());
 
@@ -167,9 +167,9 @@ public class ThingsMapper {
 	static final FactoryRDF FACTORY = new FactoryRDFStd() {
 		@Override
 		public Node createURI(String uriStr) {
-			if (uriStr.startsWith(Directory.configuration.getDirectoryURIBase()))
+			if (uriStr.startsWith(Directory.getConfiguration().getService().getDirectoryURIBase()))
 				throw new IllegalArgumentException("URI is not absolute: "
-						+ uriStr.substring(Directory.configuration.getDirectoryURIBase().length()));
+						+ uriStr.substring(Directory.getConfiguration().getService().getDirectoryURIBase().length()));
 			return super.createURI(uriStr);
 		}
 	};
@@ -179,8 +179,8 @@ public class ThingsMapper {
 	private static final Property SH_CONFORMS = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#conforms");
 
 	public static void semanticValidation(String thingId, Model thing) {
-		if (Directory.configuration.isEnableShaclValidation()) {
-			String shape = readFile(Directory.configuration.getShapesFile());
+		if (Directory.getConfiguration().getValidation().isEnableShaclValidation()) {
+			String shape = readFile(Directory.getConfiguration().getValidation().getShapesFile());
 			if (shape.isEmpty())
 				throw new ThingValidationException(ThingValidationException.EXCEPTION_CODE_SEM_1);
 			Model report = ModelFactory.createDefaultModel();
@@ -195,8 +195,8 @@ public class ThingsMapper {
 	}
 
 	public static void syntacticValidation(Thing thing) {
-		if (Directory.configuration.isEnableJsonSchemaValidation()) {
-			String schema = readFile(Directory.configuration.getSchemaFile());
+		if (Directory.getConfiguration().getValidation().isEnableJsonSchemaValidation()) {
+			String schema = readFile(Directory.getConfiguration().getValidation().getSchemaFile());
 			if (schema.isEmpty())
 				throw new ThingValidationException(ThingValidationException.EXCEPTION_CODE_SYN_1);
 			JsonObject report = new JsonObject();
@@ -215,7 +215,7 @@ public class ThingsMapper {
 		try {
 			content = new String(Files.readAllBytes(Paths.get(filePath)));
 		} catch (IOException e) {
-			e.printStackTrace();
+			Directory.LOGGER.error(e.toString());
 		}
 		return content;
 	}

@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 import directory.Utils;
 import directory.events.EventsController;
 import directory.exceptions.RemoteException;
-import directory.things.store.SPARQLEndpoint;
+import directory.triplestore.TriplestoreEndpoint;
 import wot.jtd.JTD;
 import wot.jtd.model.Thing;
 
@@ -38,7 +38,7 @@ public class ThingsDAO  {
 		
 		String thingRDF = ThingsMapper.thingToRDFWithValidation(thing, RDFFormat.NTRIPLES);
 		query = Utils.buildMessage("\nINSERT DATA { GRAPH <",graphId,"> { \n",thingRDF,"} }");
-		byte[] messageResponse = SPARQLEndpoint.sendUpdateQuery(query).toByteArray();
+		byte[] messageResponse = TriplestoreEndpoint.sendUpdateQuery(query).toByteArray();
 		if (messageResponse.length>0) 
 			throw new RemoteException(new String(messageResponse));
 		correct = true;
@@ -52,7 +52,7 @@ public class ThingsDAO  {
 	
 	protected static List<String> getPaginatedGraphs(Integer limit, Integer offset) {
 		String graphs = Utils.buildMessage("SELECT ?g WHERE { GRAPH ?g { ?s ?p ?o . } } LIMIT ", limit.toString(), " OFFSET ", offset.toString());
-		String rawResults = SPARQLEndpoint.sendQueryString(graphs, Utils.MIME_CSV);
+		String rawResults = TriplestoreEndpoint.sendQueryString(graphs, Utils.MIME_CSV);
 		List<String> graphIds = Arrays.asList(rawResults.split("\n")).stream().map(elem -> Utils.buildMessage("<",elem.trim(),">")).collect(Collectors.toList());
 		graphIds.remove(0); // remove CSV header
 		return graphIds;
@@ -62,7 +62,7 @@ public class ThingsDAO  {
 		String query = Utils.buildMessage("CONSTRUCT {?s ?p ?o } WHERE { GRAPH ?graph { ?s ?p ?o .} VALUES ?graph {",graphIds.toString().replaceAll("[\\[\\],]*", "")," } }");
 		String output = null;
 		try {
-			output = SPARQLEndpoint.sendQueryString(query, Utils.MIME_TURTLE);
+			output = TriplestoreEndpoint.sendQueryString(query, Utils.MIME_TURTLE);
 			return ThingsMapper.createRDFThings(RDFFormat.TURTLE, output);
 		} catch(Exception e) {
 				throw new RemoteException(e.toString());
@@ -71,20 +71,20 @@ public class ThingsDAO  {
 	
 	public static List<Thing> readAll() {
 		String query = Utils.buildMessage("CONSTRUCT {?s ?p ?o } WHERE { GRAPH ?graph { ?s ?p ?o .} }");
-		String output = SPARQLEndpoint.sendQueryString(query, Utils.MIME_TURTLE);
+		String output = TriplestoreEndpoint.sendQueryString(query, Utils.MIME_TURTLE);
 		return ThingsMapper.createRDFThings(RDFFormat.TURTLE, output);
 	}
 	
 	protected static Thing read(String graphId) {
 		String query = Utils.buildMessage("CONSTRUCT {?s ?p ?o } WHERE { GRAPH <",graphId,"> { ?s ?p ?o .} }");
-		String output = SPARQLEndpoint.sendQueryString(query, Utils.MIME_TURTLE);
+		String output = TriplestoreEndpoint.sendQueryString(query, Utils.MIME_TURTLE);
 		return ThingsMapper.createRDFThing(RDFFormat.TURTLE, output);
 	
 	}
 	
 	protected static boolean exist(String graphId) {
 		String query = Utils.buildMessage("ASK { GRAPH <",graphId,"> { ?s ?p ?o } }");
-		String result = SPARQLEndpoint.sendQueryString(query, Utils.MIME_JSON);
+		String result = TriplestoreEndpoint.sendQueryString(query, Utils.MIME_JSON);
 		if(result==null)
 			return false;
 		JsonObject output = JTD.parseJson(result);
@@ -97,7 +97,7 @@ public class ThingsDAO  {
 	
 	protected static void delete(String graphId) {
 		String query = Utils.buildMessage("DELETE  { ?s ?p ?o } WHERE { GRAPH <",graphId,">  { ?s ?p ?o } }");
-		SPARQLEndpoint.sendUpdateQuery(query);
+		TriplestoreEndpoint.sendUpdateQuery(query);
 	}
 
 	

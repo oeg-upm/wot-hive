@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -19,7 +20,8 @@ import spark.Response;
 import spark.Route;
 import wot.jtd.model.Thing;
 
-public class JsonPathController {
+
+public class JsonPathController{
 
 	private JsonPathController() {
 		super();
@@ -82,5 +84,8 @@ public class JsonPathController {
 	private static Boolean validList(List<String> list) {
     		return list!=null && !list.isEmpty();
     }
+
+
+	
     
 }

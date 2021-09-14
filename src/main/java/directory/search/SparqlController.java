@@ -5,14 +5,14 @@ import org.apache.jena.query.QueryFactory;
 
 import directory.Utils;
 import directory.exceptions.SearchSparqlException;
-import directory.things.store.SPARQLEndpoint;
+import directory.triplestore.TriplestoreEndpoint;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 public class SparqlController {
 	
-	// -- Attributes
+	// -- Attributes 
 	/** @see: <a href="https://www.w3.org/TR/sparql11-results-json/"> SPARQL documentation </a> **/
 	private static final String MIME_SPARQL_JSON = "application/sparql-results+json";
 	/** @see: <a href="https://www.w3.org/TR/rdf-sparql-XMLres/"> SPARQL documentation </a> **/
@@ -35,7 +35,7 @@ public class SparqlController {
 		
 		String validMime = validateQueryAndMime(query, request.headers("Accept")) ;
 	
-		return SPARQLEndpoint.sendQueryStream(query, validMime);
+		return TriplestoreEndpoint.sendQueryStream(query, validMime);
     };
     
     private static String validateQueryAndMime(String query, String mimeType) {

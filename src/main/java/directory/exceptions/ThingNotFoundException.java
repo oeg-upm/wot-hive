@@ -17,6 +17,8 @@ public class ThingNotFoundException extends RuntimeException{
 		super(msg);
 	}
 	
+
+	@SuppressWarnings("rawtypes")
 	public static final ExceptionHandler handleThingNotFoundException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(404);

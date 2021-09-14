@@ -28,6 +28,7 @@ public class SearchSparqlException  extends RuntimeException {
 	public static final String EXCEPTION_CODE_2 = "searchSparql-002"; // Sparql path invalid syntax
 	public static final String EXCEPTION_CODE_3 = "searchSparql-003"; // error applying Sparql
 	
+	@SuppressWarnings("rawtypes")
 	public static final ExceptionHandler handleSearchXPathException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(400);
