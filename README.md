@@ -23,3 +23,5 @@ SPARQL       &                                                              &   
 # wot-hive
 The WoT Hive an implementation of a WoT Directory described in the W3C WoT Discovery standard
 >>>>>>> bab8f4935cf3657e4f7649b60973f4622bef4338
+
+linea nueva
