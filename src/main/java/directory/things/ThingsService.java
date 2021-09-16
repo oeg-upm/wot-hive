@@ -41,20 +41,21 @@ public class ThingsService {
 	public static final String registerJsonThingAnonymous(String td) {
 		Thing thing = ThingsMapper.createJsonThingAnonymous(td);
 		enrichTD(thing);
-		ThingsDAO.create(thing, thing.getId());
+		ThingsDAO.create(thing, thing.getId(), false);
 		return thing.getId();
 	}
 	
 	protected static final Boolean registerJsonThing(String graphId, String td) {
 		Boolean registered = true;
+		Boolean exist = ThingsDAO.exist(graphId);
 		Thing thing = ThingsMapper.createJsonThing(td);
-		if(ThingsDAO.exist(graphId)) {
+		if(exist) {
 			ThingsDAO.delete(graphId);
 			markModification(thing);
 		}else {
 			enrichTD(thing);
 		}
-		ThingsDAO.create(thing, graphId);
+		ThingsDAO.create(thing, graphId, exist);
 
 		return registered;
 	}
@@ -62,14 +63,15 @@ public class ThingsService {
 	protected static final Boolean registerRDFThing(String graphId, RDFFormat format, String td) {
 		Boolean registered = null;
 		try {
+			Boolean exist = ThingsDAO.exist(graphId);
 			Thing thing = ThingsMapper.createRDFThing(format, td);
-			if(ThingsDAO.exist(graphId)) {
+			if(exist) {
 				ThingsDAO.delete(graphId);
 				markModification(thing);
 			}else {
 				enrichTD(thing);
 			}
-			ThingsDAO.create(thing, graphId);
+			ThingsDAO.create(thing, graphId, exist);
 		}catch(RemoteException e) {
 			throw new RemoteException(e.toString());
 		}

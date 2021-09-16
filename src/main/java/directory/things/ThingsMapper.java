@@ -121,10 +121,12 @@ public class ThingsMapper {
 	private static final List<Thing> buildThings(RDFFormat format, String td) {
 		List<Thing> things = new ArrayList<>();
 		try {
-			Model model = ModelFactory.createDefaultModel();
-			RDFReader reader = model.getReader(format.getLang().getName().toLowerCase());
-			reader.read(model, new ByteArrayInputStream(td.getBytes()), Directory.getConfiguration().getService().getDirectoryURIBase());
-			things = JTD.fromRDF(model);
+			if(td.length() > 0 && !td.equals("[]")) {
+				Model model = ModelFactory.createDefaultModel();
+				RDFReader reader = model.getReader(format.getLang().getName().toLowerCase());
+				reader.read(model, new ByteArrayInputStream(td.getBytes()), Directory.getConfiguration().getService().getDirectoryURIBase());
+				things = JTD.fromRDF(model);
+			}
 		} catch (SchemaValidationException | IllegalArgumentException e) {
 			throw new ThingParsingException(e.toString());
 		} catch (Exception e) {

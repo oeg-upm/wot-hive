@@ -100,6 +100,9 @@ public class Directory {
 			});
 			path("/events", () -> {
 				get("", EventsController.subscribe);
+				get("/create", EventsController.subscribeCreate);
+				get("/update", EventsController.subscribeUpdate);
+				get("/delete", EventsController.subscribeDelete);
 			});
 		});
 
@@ -112,6 +115,8 @@ public class Directory {
 			String logStr = Utils.buildMessage(request.requestMethod(), " ", request.pathInfo());
 			Directory.LOGGER.info(logStr);
 		});
+		
+		
 	}
 
 

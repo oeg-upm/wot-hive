@@ -2,13 +2,13 @@ package directory.things;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import org.apache.jena.riot.RDFFormat;
 import com.google.gson.JsonObject;
 
 import directory.Utils;
+import directory.events.DirectoryEvent;
 import directory.events.EventsController;
 import directory.exceptions.RemoteException;
 import directory.triplestore.TriplestoreEndpoint;
@@ -20,7 +20,7 @@ public class ThingsDAO  {
 	// -- Attributes
 	
 	private static final String ASK_KEY = "boolean";
-	public static List<String> events = new CopyOnWriteArrayList<>();
+
 	// -- Constructor
 	
 	private ThingsDAO() {
@@ -31,7 +31,7 @@ public class ThingsDAO  {
 	
 	// Create
 	
-	public static Boolean create(Thing thing, String graphId) {
+	public static Boolean create(Thing thing, String graphId, Boolean exist) {
 		Boolean correct = false;
 		String query = null;
 		ThingsMapper.syntacticValidation(thing);
@@ -42,7 +42,12 @@ public class ThingsDAO  {
 		if (messageResponse.length>0) 
 			throw new RemoteException(new String(messageResponse));
 		correct = true;
-		EventsController.igniteCreateEvent(thing.getId());
+		if(exist) {
+			EventsController.eventSystem.igniteEvent(thing.getId(), DirectoryEvent.UPDATE, thing);
+		}else {
+			EventsController.eventSystem.igniteEvent(thing.getId(), DirectoryEvent.CREATE, thing);
+		}
+		
 		return correct;
 	}
 	
@@ -98,6 +103,7 @@ public class ThingsDAO  {
 	protected static void delete(String graphId) {
 		String query = Utils.buildMessage("DELETE  { ?s ?p ?o } WHERE { GRAPH <",graphId,">  { ?s ?p ?o } }");
 		TriplestoreEndpoint.sendUpdateQuery(query);
+		EventsController.eventSystem.igniteEvent(graphId, DirectoryEvent.DELETE);
 	}
 
 	

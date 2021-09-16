@@ -35,6 +35,17 @@
 			<artifactId>spark-core</artifactId>
 			<version>2.9.3</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.javatuples</groupId>
+		    <artifactId>javatuples</artifactId>
+		    <version>1.2</version>
+		</dependency>
+		<!-- DNSN -->
+		<dependency>
+		 	<groupId>org.jmdns</groupId>
+		 	<artifactId>jmdns</artifactId>
+		 	<version>3.5.7</version>
+		</dependency>
 		<!-- Thing description translation -->
 		<dependency>
 			  <groupId>es.upm.fi.oeg</groupId>
