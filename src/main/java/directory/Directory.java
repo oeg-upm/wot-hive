@@ -14,16 +14,22 @@ import static spark.Spark.internalServerError;
 import static spark.Spark.threadPool;
 
 import java.io.File;
+import java.util.List;
 
 import static spark.Spark.port;
 
 import org.apache.jena.ext.com.google.common.io.Files;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import directory.configuration.DirectoryConfiguration;
 import directory.configuration.DirectoryConfigurationController;
+import directory.events.DirectoryEvent;
 import directory.events.EventsController;
 import directory.exceptions.ConfigurationException;
 import directory.exceptions.Exceptions;
@@ -38,8 +44,12 @@ import directory.search.JsonPathController;
 import directory.search.SparqlController;
 import directory.search.XPathController;
 import directory.things.ThingsController;
+import directory.things.ThingsDAO;
+import directory.things.ThingsMapper;
 import spark.Request;
 import spark.Response;
+import spark.Route;
+import spark.Service;
 import wot.jtd.JTD;
 import wot.jtd.Vocabulary;
 
@@ -61,7 +71,9 @@ public class Directory {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		setup();
-
+		//SparkSwagger.of()
+		get("/.well-known/wot-thing-description", Directory.getSelfDescription);
+		
 		path("/configuration", () -> {
 			get("", DirectoryConfigurationController.configuration);
 			get("/service", DirectoryConfigurationController.serviceConfiguration);
@@ -73,6 +85,7 @@ public class Directory {
 			post("/validation", DirectoryConfigurationController.configureValidation);
 			exception(ConfigurationException.class,ConfigurationException.handleConfigurationException);
 		});
+		
 		
 		path("/api", () -> {
 			path("/things", () -> {
@@ -118,7 +131,31 @@ public class Directory {
 		
 		
 	}
+	
+	public static final Route getSelfDescription = (Request request, Response response) -> {
+		try {
+			String format = request.headers(Utils.HEADER_ACCEPT);
+			JsonObject description = JTD.parseJson(Utils.readFile(new File("self-description.json")));
+			String id = 	Utils.buildMessage("http://",request.raw().getServerName(), request.uri());
+			if(request.port()!=80) 
+				id = Utils.buildMessage("http://",request.raw().getServerName(), ":", String.valueOf(request.port()), request.uri());
 
+			description.addProperty("@id", id);
+			if(format!=null && format.equals(Utils.MIME_TURTLE)) {
+				response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_TURTLE);
+				Model model = JTD.toRDF(description);
+				model.write(response.raw().getOutputStream(), "TURTLE");
+			}else {
+				response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_THING);
+			}
+			return description;
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return "";
+		};
 
 	private static String handleUnmatchedRoutes(Request request, Response response, int status) {
 		response.type(Utils.MIME_JSON);
@@ -131,6 +168,8 @@ public class Directory {
 		}
 		return "{\"message\":\"error\"}";
 	}
+	
+
 
 	// -- Methods
 
@@ -161,11 +200,13 @@ public class Directory {
 			DirectoryConfiguration newConfiguration = DirectoryConfiguration.syncConfiguration();
 			setConfiguration(newConfiguration);
 			// Apply service configuration only-once
+			
 			port(configuration.getService().getPort());
 			threadPool(configuration.getService().getMaxThreads(), configuration.getService().getMinThreads(),
 					configuration.getService().getTimeOutMillis());
 		} catch (Exception e) {
 			LOGGER.error(e.toString());
+			System.exit(-1);
 		}
 		// Show service info
 		LOGGER.info(Utils.WOT_DIRECTORY_LOGO);

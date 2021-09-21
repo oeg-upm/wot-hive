@@ -1,6 +1,6 @@
 package directory.configuration;
 
-import com.github.jsonldjava.shaded.com.google.common.net.HttpHeaders;
+import com.google.common.net.HttpHeaders;
 
 import directory.Directory;
 import directory.Utils;
@@ -10,6 +10,10 @@ import spark.Route;
 
 public class DirectoryConfigurationController {
 
+	private DirectoryConfigurationController() {
+		super();
+	}
+	
 	public static final Route configuration = (Request request, Response response) -> {
 		response.header(HttpHeaders.CONTENT_TYPE, Utils.MIME_JSON);
 		response.status(200);
@@ -20,8 +24,6 @@ public class DirectoryConfigurationController {
 		// Parse and validate service configuration payload
 		DirectoryConfiguration newConfiguration = DirectoryConfiguration.serialiseFromJson(request.body());
 		// Update global configuration
-		DirectoryConfiguration oldConfiguration = Directory.getConfiguration();
-		newConfiguration.setService(oldConfiguration.getService());
 		Directory.setConfiguration(newConfiguration);
 		// setup output
 		response.status(200);
@@ -36,10 +38,10 @@ public class DirectoryConfigurationController {
 	
 	public static final Route configureTriplestore = (Request request, Response response) -> {		
 		// Parse and validate triplestore configuration payload
-		TriplestoreConfiguration triplestoreConfiguration = TriplestoreConfiguration.serialiseFromJson(request.body());
+		TriplestoreConfiguration newTriplestoreConfiguration = TriplestoreConfiguration.serialiseFromJson(request.body());
 		// Update global configuration
 		DirectoryConfiguration newConfiguration = Directory.getConfiguration();
-		newConfiguration.setTriplestore(triplestoreConfiguration);
+		newConfiguration.setTriplestore(newTriplestoreConfiguration);
 		Directory.setConfiguration(newConfiguration);
 		// setup output
 		response.status(200);
@@ -54,10 +56,10 @@ public class DirectoryConfigurationController {
 
 	public static final Route configureValidation = (Request request, Response response) -> {
 		// Parse and validate service configuration payload
-		ValidationConfiguration serviceConfiguration = ValidationConfiguration.serialiseFromJson(request.body());
+		ValidationConfiguration newValidationConfiguration = ValidationConfiguration.serialiseFromJson(request.body());
 		// Update global configuration
 		DirectoryConfiguration newConfiguration = Directory.getConfiguration();
-		newConfiguration.setValidation(serviceConfiguration);
+		newConfiguration.setValidation(newValidationConfiguration);
 		Directory.setConfiguration(newConfiguration);
 		// setup output
 		response.status(200);
@@ -72,10 +74,10 @@ public class DirectoryConfigurationController {
 	
 	public static final Route configureService = (Request request, Response response) -> {
 		// Parse and validate service configuration payload
-		ServiceConfiguration serviceConfiguration = ServiceConfiguration.serialiseFromJson(request.body());
+		ServiceConfiguration newServiceConfiguration = ServiceConfiguration.serialiseFromJson(request.body());
 		// Update global configuration
 		DirectoryConfiguration newConfiguration = Directory.getConfiguration();
-		newConfiguration.setService(serviceConfiguration);
+		newConfiguration.setService(newServiceConfiguration);
 		Directory.setConfiguration(newConfiguration);
 		// setup output
 		response.status(200);

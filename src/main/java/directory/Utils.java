@@ -1,5 +1,11 @@
 package directory;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,7 +31,7 @@ public class Utils {
 	public static final String METHOD_PUT = "PUT";
 	
 	public static final String MIME_DIRECTORY_ERROR = "application/problem+json";
-	protected static final String DIRECTORY_VERSION = "WoTHive/0.1.0";
+	protected static final String DIRECTORY_VERSION = "WoTHive/0.1.3";
 	protected static final String WOT_DIRECTORY_LOGO = "\n"+
 			"██╗    ██╗ ██████╗ ████████╗\n" + 
 			"██║    ██║██╔═══██╗╚══██╔══╝\n" + 
@@ -98,6 +104,15 @@ public class Utils {
 		return port;	
 	}
 	
+	public static String readFile(File file) throws IOException {
+		Reader reader = new FileReader(file);
+		Writer writer = new StringWriter();
+		reader.transferTo(writer);
+		reader.close();
+		String result = writer.toString();
+		writer.close();
+		return result;
+	}
 	
 	
 }
