@@ -4,6 +4,7 @@
 
 WoT Hive is an implementation of a [W3C Web of Things directory ](https://www.w3.org/TR/wot-discovery/). This implementation is compliant with the standard specification but aims at providing enriched features thanks to the usage of other W3C standards related to Semantic Web technologies.
 
+Checkout our [wiki](https://github.com/oeg-upm/wot-hive/wiki) for more documentation
 
 ##  Docker quick start 
 Copy this receipt in a *docker-compose.yml* file
