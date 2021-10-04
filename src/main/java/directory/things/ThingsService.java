@@ -46,7 +46,6 @@ public class ThingsService {
 	}
 	
 	protected static final Boolean registerJsonThing(String graphId, String td) {
-		Boolean registered = true;
 		Boolean exist = ThingsDAO.exist(graphId);
 		Thing thing = ThingsMapper.createJsonThing(td);
 		if(exist) {
@@ -57,13 +56,13 @@ public class ThingsService {
 		}
 		ThingsDAO.create(thing, graphId, exist);
 
-		return registered;
+		return exist;
 	}
 
 	protected static final Boolean registerRDFThing(String graphId, RDFFormat format, String td) {
-		Boolean registered = null;
+		Boolean exist = false;
 		try {
-			Boolean exist = ThingsDAO.exist(graphId);
+			exist = ThingsDAO.exist(graphId);
 			Thing thing = ThingsMapper.createRDFThing(format, td);
 			if(exist) {
 				ThingsDAO.delete(graphId);
@@ -75,7 +74,7 @@ public class ThingsService {
 		}catch(RemoteException e) {
 			throw new RemoteException(e.toString());
 		}
-		return registered;
+		return exist;
 	}
 	
 
@@ -97,7 +96,6 @@ public class ThingsService {
 		String now = now();
 		registrationInformation.setModified(now);
 		thing.setRegistrationInformation(registrationInformation);
-
 	}
 	
 	private static void enrichTD(Thing thing) {

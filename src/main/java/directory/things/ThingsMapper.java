@@ -62,6 +62,7 @@ public class ThingsMapper {
 		Thing thing = null;
 		try {
 			JsonObject thingJson = JTD.parseJson(td);
+
 			if (!thingJson.has(ID))
 				throw new ThingRegistrationException(
 						"Things under the form application/td+json registered using PUT method must provide a valid 'id', otherwhise se the POST method for Things without 'id'");

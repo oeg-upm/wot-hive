@@ -73,7 +73,7 @@ public class Directory {
 		setup();
 		//SparkSwagger.of()
 		get("/.well-known/wot-thing-description", Directory.getSelfDescription);
-		
+		exception(SelfDescriptionException.class,SelfDescriptionException.handleSelfDescriptionException);
 		path("/configuration", () -> {
 			get("", DirectoryConfigurationController.configuration);
 			get("/service", DirectoryConfigurationController.serviceConfiguration);
@@ -151,10 +151,9 @@ public class Directory {
 			return description;
 			
 		}catch(Exception e) {
-			e.printStackTrace();
+			throw new SelfDescriptionException(e.toString());
 		}
 		
-		return "";
 		};
 
 	private static String handleUnmatchedRoutes(Request request, Response response, int status) {

@@ -90,10 +90,12 @@ public class ThingsDAO  {
 	protected static boolean exist(String graphId) {
 		String query = Utils.buildMessage("ASK { GRAPH <",graphId,"> { ?s ?p ?o } }");
 		String result = TriplestoreEndpoint.sendQueryString(query, Utils.MIME_JSON);
-		if(result==null)
-			return false;
-		JsonObject output = JTD.parseJson(result);
-		return output.get(ASK_KEY).getAsBoolean();
+		if(result!=null) {
+			JsonObject output = JTD.parseJson(result);
+			if(output.has(ASK_KEY))
+				return output.get(ASK_KEY).getAsBoolean();
+		}
+		return false;
 	}
 	
 	// -- Update

@@ -70,7 +70,7 @@ public class ThingsController {
 	
 	
 	public static final Route retrieval = (Request request, Response response) -> {
-		String graphId = request.params(":id");
+		String graphId = buildGraphId(request);
 		RDFFormat format = hasValidMime(request.headers(Utils.HEADER_ACCEPT), false);
 
 		Thing thing = ThingsService.retrieveThing(graphId);
@@ -89,18 +89,21 @@ public class ThingsController {
 
 	
 	public static final Route registrationUpdate = (Request request, Response response) -> {
-		String graphId = request.params(":id");
-		
+		String graphId = buildGraphId(request);
+
 		String td = hasValidBody(request.body());
 		RDFFormat format = hasValidMime(request.headers(Utils.HEADER_CONTENT_TYPE), true);
-		response.status(201);
-		if(ThingsDAO.exist(graphId)) // Update
-			response.status(204);
-		if(format.equals(RDFFormat.JSONLD_FRAME_FLAT)) { // Create
-			ThingsService.registerJsonThing(graphId, td);
+		Boolean exist = false;
+		
+		if(format.equals(RDFFormat.JSONLD_FRAME_FLAT)) { // Create/Update
+			exist = ThingsService.registerJsonThing(graphId, td);
 		}else {
-			ThingsService.registerRDFThing(graphId, format, td);
+			exist = ThingsService.registerRDFThing(graphId, format, td);
 		}
+		
+		response.status(201);
+		if(exist) // Update
+			response.status(204);
 		return "";
 	};
 	
@@ -121,7 +124,7 @@ public class ThingsController {
 	
 	public static final Route partialUpdate = (Request request, Response response) -> {
 		JsonObject tdJson = null;
-		String graphId = request.params(":id");
+		String graphId = buildGraphId(request);
 		String td = hasValidBody(request.body());
 		if(!request.headers(Utils.HEADER_CONTENT_TYPE).equals("application/merge-patch+json")) 
 			throw new ThingRegistrationException("Partial updates require header 'Content-Type' with value 'application/merge-patch+json'");
@@ -141,7 +144,7 @@ public class ThingsController {
 	// DELETE delete TD
 	public static final Route deletion = (Request request, Response response) -> {
 			try{
-				String graphId = request.params(":id");
+				String graphId = buildGraphId(request);
 				if(graphId!=null && ThingsDAO.exist(graphId)) {
 					ThingsDAO.delete(graphId);
 					response.status(204);
@@ -184,7 +187,10 @@ public class ThingsController {
 		return tdFormat;
 	}
 	
-
+	private static final String HTTP_CONSTANT = "http://";
+	private static final String buildGraphId(Request request) {
+		return Utils.buildMessage(HTTP_CONSTANT,request.host(),request.pathInfo(),request.params(":id")); 
+	}
 		
 	
 }

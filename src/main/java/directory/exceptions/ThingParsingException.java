@@ -11,4 +11,6 @@ public class ThingParsingException extends RuntimeException{
 	public ThingParsingException(String msg) {
 		super(msg);
 	}
+	
+	
 }
