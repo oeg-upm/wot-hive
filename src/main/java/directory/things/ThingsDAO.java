@@ -35,8 +35,7 @@ public class ThingsDAO  {
 		Boolean correct = false;
 		String query = null;
 		ThingsMapper.syntacticValidation(thing);
-		if(!thing.getId().contains(":")) 
-			thing.setId("id:"+thing.getId());
+		
 		
 		String thingRDF = ThingsMapper.thingToRDFWithValidation(thing, RDFFormat.NTRIPLES);
 		query = Utils.buildMessage("\nINSERT DATA { GRAPH <",graphId,"> { \n",thingRDF,"} }");
