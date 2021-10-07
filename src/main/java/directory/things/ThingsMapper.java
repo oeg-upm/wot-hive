@@ -34,7 +34,8 @@ import wot.jtd.model.Thing;
 
 public class ThingsMapper {
 
-	private static final String ID = "id";
+	private static final String ID1 = "id";
+	private static final String ID2 = "@id";
 
 	private ThingsMapper() {
 		super();
@@ -63,7 +64,7 @@ public class ThingsMapper {
 		try {
 			JsonObject thingJson = JTD.parseJson(td);
 
-			if (!thingJson.has(ID))
+			if (!thingJson.has(ID1) || thingJson.has(ID2))
 				throw new ThingRegistrationException(
 						"Things under the form application/td+json registered using PUT method must provide a valid 'id', otherwhise se the POST method for Things without 'id'");
 			thing = Thing.fromJson(thingJson);
@@ -79,7 +80,7 @@ public class ThingsMapper {
 		Thing thing = null;
 		try {
 			JsonObject thingJson = JTD.parseJson(td);
-			if (thingJson.has(ID))
+			if (thingJson.has(ID1) || thingJson.has(ID2))
 				throw new ThingRegistrationException(
 						"Things registered using POST method must lack of an 'id', otherwhise use the PUT method for Things with a valid 'id'");
 			thing = Thing.fromJson(thingJson);
