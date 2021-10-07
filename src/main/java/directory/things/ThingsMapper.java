@@ -64,7 +64,7 @@ public class ThingsMapper {
 		try {
 			JsonObject thingJson = JTD.parseJson(td);
 
-			if (!thingJson.has(ID1) || thingJson.has(ID2))
+			if (!thingJson.has(ID1) || !thingJson.has(ID2))
 				throw new ThingRegistrationException(
 						"Things under the form application/td+json registered using PUT method must provide a valid 'id', otherwhise se the POST method for Things without 'id'");
 			thing = Thing.fromJson(thingJson);
