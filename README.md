@@ -10,7 +10,8 @@ WoT Hive is an implementation of a [W3C Web of Things directory ](https://www.w3
 
 ##  Docker quick start 
 Copy this receipt in a *docker-compose.yml* file
-````
+
+```yaml
 version: '2'
 services:
   triplestore:
@@ -21,9 +22,13 @@ services:
     image: acimmino/wot-hive:latest
     ports:
       - '9000:9000'
-````
+```
+
 Run the docker command
-> docker-compose up
+
+```bash
+docker-compose up
+```
 
 ##  Jar quick start  
 ##### `Requires a triple store service publishing a SPARQL endpoint to store the Thing Descriptions`
@@ -35,19 +40,23 @@ Download the latest release of WoT Hive into a folder. Notice that the releases 
 * **wothive.jar** is the jar of the service
 
 Once downloaded all the resources in the same folder the service can be ran using the command
-> java -jar wothive.jar
+
+```bash
+java -jar wothive.jar
+```
 
 When the service is up and running a file called *configuration.json* will be created in the directory of the jar.  The service will run by default in port 9000. 
 #### 2. Set up the triple store
 In order to connect the WoT Hive to a remote triple store a `POST` request must be sent to `/configuration/triplestore` containing the in the body the following JSON
 
-````
+```json
 {
     "updateEnpoint": "http://localhost:4567/sparql",
     "queryEnpoint": "http://localhost:4567/sparql",
     "queryUsingGET": true
 }
-````
+```
+
 Notice that `"queryEndpoint"`and `"updateEndpoint"` must have as value the correct endpoints of the triple store for either querying or inserting data. Finally, if the triple store implements the SPARQL protocol through `GET` requests then leave `"queryUsingGET": true`, otherwise, for using `POST`set it to false `"queryUsingGET": false`.
 
 ## WoT Hive API
