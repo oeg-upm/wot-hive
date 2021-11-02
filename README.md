@@ -1,4 +1,3 @@
-
 # WoT Hive
 [![Version](https://img.shields.io/badge/Version-0.1.4-orange)](https://github.com/oeg-upm/wot-jtd/releases) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GitHub stars](https://img.shields.io/github/stars/Naereen/StrapDown.js.svg?style=social&label=Star&maxAge=2592000)](https://github.com/oeg-upm/wot-jtd/stargazers)
 
