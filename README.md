@@ -84,5 +84,6 @@ Notice that `"queryEndpoint"`and `"updateEndpoint"` must have as value the corre
 
 ### Acknowledgements
 This project has been partially funded by the European project AURORAL from the European Union's Horizont 2020 research and innovation programme under grant agreement Nº101016854.
+
 <img src="https://user-images.githubusercontent.com/4105186/141472288-1b15e0ba-8ae1-414a-a849-222b6bc27754.png" height="75" /> <img src="https://www.auroral.eu/img/logos/bandeira.png"  height="80" />
 
