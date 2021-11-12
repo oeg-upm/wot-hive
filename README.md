@@ -79,3 +79,10 @@ Notice that `"queryEndpoint"`and `"updateEndpoint"` must have as value the corre
 | `api/events/delete{?diff}` 	| `GET` 	| `N/A` 	| [Notifications](https://w3c.github.io/wot-discovery/#exploration-directory-api-notification) 	| Subscribe to all the `delete` events of the service using the Server-Sends-Events (SSE) protocol 	|
 
 [Validation](https://w3c.github.io/wot-discovery/#validation) can  be configured to ran using the JSON schema of the Thing Descriptions and/or their SHACL shapes.
+
+---
+
+### Acknowledgements
+This project has been partially funded by the European project AURORAL from the European Union's Horizont 2020 research and innovation programme under grant agreement Nº101016854.
+<img src="https://user-images.githubusercontent.com/4105186/141472288-1b15e0ba-8ae1-414a-a849-222b6bc27754.png" height="75" /> <img src="https://www.auroral.eu/img/logos/bandeira.png"  height="80" />
+
