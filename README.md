@@ -81,7 +81,6 @@ Notice that `"queryEndpoint"`and `"updateEndpoint"` must have as value the corre
 [Validation](https://w3c.github.io/wot-discovery/#validation) can  be configured to ran using the JSON schema of the Thing Descriptions and/or their SHACL shapes.
 
 ---
-# EasterEgg
 ### Acknowledgements
 This project has been partially funded by the European project AURORAL from the European Union's Horizont 2020 research and innovation programme under grant agreement Nº101016854.
 
