@@ -90,13 +90,13 @@ public class ThingsController {
 	
 	public static final Route registrationUpdate = (Request request, Response response) -> {
 		String graphId = buildGraphId(request);
-
+		String id = request.params("id");
 		String td = hasValidBody(request.body());
 		RDFFormat format = hasValidMime(request.headers(Utils.HEADER_CONTENT_TYPE), true);
 		Boolean exist = false;
 		
 		if(format.equals(RDFFormat.JSONLD_FRAME_FLAT)) { // Create/Update
-			exist = ThingsService.registerJsonThing(graphId, td);
+			exist = ThingsService.registerJsonThing(graphId, id, td);
 		}else {
 			exist = ThingsService.registerRDFThing(graphId, format, td);
 		}
@@ -110,9 +110,9 @@ public class ThingsController {
 	public static final Route registrationAnonymous = (Request request, Response response) -> {
 		String td = hasValidBody(request.body());
 		RDFFormat format = hasValidMime(request.headers(Utils.HEADER_CONTENT_TYPE), true);
-
+		String graphID = buildGraphId(request);
 		if(format.equals(RDFFormat.JSONLD_FRAME_FLAT)) {
-			String newUUID = ThingsService.registerJsonThingAnonymous(td);
+			String newUUID = ThingsService.registerJsonThingAnonymous(td, graphID);
 			response.header(LOCATION_HEADER, newUUID);
 		}else {
 			throw new ThingRegistrationException("Things under a different form than application/td+json must be registered using PUT");
@@ -124,6 +124,8 @@ public class ThingsController {
 	
 	public static final Route partialUpdate = (Request request, Response response) -> {
 		JsonObject tdJson = null;
+		String id = request.params("id");
+
 		String graphId = buildGraphId(request);
 		String td = hasValidBody(request.body());
 		if(!request.headers(Utils.HEADER_CONTENT_TYPE).equals("application/merge-patch+json")) 
@@ -133,7 +135,7 @@ public class ThingsController {
 		}catch(Exception e) {
 			throw new ThingRegistrationException("Partial updates are only supported for Things under the form of application/td+json, provided update document has syntax errors");
 		}
-		ThingsService.updateThingPartially(graphId,  tdJson);
+		ThingsService.updateThingPartially(graphId, id, tdJson);
 		response.status(204);
 		
 		return "";
@@ -189,8 +191,14 @@ public class ThingsController {
 	
 	private static final String HTTP_CONSTANT = "http://";
 	private static final String buildGraphId(Request request) {
-		return Utils.buildMessage(HTTP_CONSTANT,request.host(),request.pathInfo(),request.params(":id")); 
+		String id = request.params(":id");
+		if(id!=null) {
+			return Utils.buildMessage(HTTP_CONSTANT,request.host(),request.pathInfo());
+		}else {
+			return Utils.buildMessage(HTTP_CONSTANT,request.host(),request.pathInfo()); 
+		}
 	}
+	
 		
 	
 }

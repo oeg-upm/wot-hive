@@ -38,16 +38,17 @@ public class ThingsService {
 		return ThingsDAO.read(graphId);
 	}
 	
-	public static final String registerJsonThingAnonymous(String td) {
+	public static final String registerJsonThingAnonymous(String td, String graphId) {
 		Thing thing = ThingsMapper.createJsonThingAnonymous(td);
+		graphId = Utils.buildMessage(graphId,"/",thing.getId());
 		enrichTD(thing);
-		ThingsDAO.create(thing, thing.getId(), false);
+		ThingsDAO.create(thing, graphId, false);
 		return thing.getId();
 	}
 	
-	protected static final Boolean registerJsonThing(String graphId, String td) {
+	protected static final Boolean registerJsonThing(String graphId, String id, String td) {
 		Boolean exist = ThingsDAO.exist(graphId);
-		Thing thing = ThingsMapper.createJsonThing(td);
+		Thing thing = ThingsMapper.createJsonThing(td, id);
 		if(exist) {
 			ThingsDAO.delete(graphId);
 			markModification(thing);
@@ -78,12 +79,12 @@ public class ThingsService {
 	}
 	
 
-	public static void updateThingPartially(String graphId, JsonObject partialUpdate) {
+	public static void updateThingPartially(String graphId, String id, JsonObject partialUpdate) {
 		Thing existingThing = ThingsService.retrieveThing(graphId);
 		try {
 			Thing updatedThing = JTD.updateJsonThingPartially(existingThing, partialUpdate);
 			markModification(updatedThing);
-			ThingsService.registerJsonThing(graphId, updatedThing.toJson().toString());
+			ThingsService.registerJsonThing(graphId, id, updatedThing.toJson().toString());
 		} catch (IOException e) {
 			throw new ThingParsingException(e.toString());
 		} catch (JsonPatchException e) {

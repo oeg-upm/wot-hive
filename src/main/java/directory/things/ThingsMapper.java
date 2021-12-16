@@ -59,7 +59,7 @@ public class ThingsMapper {
 	}
 
 	// -- JSON factory
-	public static Thing createJsonThing(String td) {
+	public static Thing createJsonThing(String td, String id) {
 		Thing thing = null;
 		try {
 			JsonObject thingJson = JTD.parseJson(td);
@@ -67,7 +67,11 @@ public class ThingsMapper {
 			if (!thingJson.has(ID1) && !thingJson.has(ID2))
 				throw new ThingRegistrationException(
 						"Things under the form application/td+json registered using PUT method must provide a valid 'id', otherwhise se the POST method for Things without 'id'");
+			// todo check if the td id and id are the same
 			thing = Thing.fromJson(thingJson);
+			//if(!thing.getId().equals(id))
+				//throw new ThingRegistrationException("Provided Thing has an ID different from the one specified in the request");
+			
 		} catch (Exception e) {
 			throw new ThingParsingException(
 					Utils.buildMessage("Thing under the form application/td+json has errors, check:", e.toString()));
