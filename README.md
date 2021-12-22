@@ -21,8 +21,8 @@ services:
       - '4567:4567'
   wothive:
     image: acimmino/wot-hive:latest
-    // volumes:
-    // - ./wothive/configuration.json:/usr/src/wothive/configuration.json
+    # volumes:
+    # - ./wothive/configuration.json:/usr/src/wothive/configuration.json
     ports:
       - '9000:9000'
 ```
