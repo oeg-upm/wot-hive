@@ -7,7 +7,7 @@ WoT Hive is an implementation of a [W3C Web of Things directory ](https://www.w3
 
 **Try the [WoT Hive demo](https://wothive.linkeddata.es/api/things)**, behind this deployment there is a RDF4J triplestore that does not support identifiers like 900de665-6a0b-4d48-abcb-2fb457015ba1, instead add a prefix like uuid:900de665-6a0b-4d48-abcb-2fb457015ba1. This issue is due to the triplestore used by the WoT Hive not the directory itself, other triplestores support the former ids.
 
-##  Docker quick start 
+##  Docker quick start
 Copy this receipt in a *docker-compose.yml* file
 
 ```yaml
@@ -15,19 +15,34 @@ version: '2'
 services:
   triplestore:
     image: acimmino/helio-cloud-rdf4jstore:latest
+    volumes:
+    - ./triplestore:/usr/src/helio-cloud-rdf4jstore/rdf4j
     ports:
       - '4567:4567'
   wothive:
     image: acimmino/wot-hive:latest
+    // volumes:
+    // - ./wothive/configuration.json:/usr/src/wothive/configuration.json
     ports:
       - '9000:9000'
 ```
+
+[OPTIONAL] Uncomment wothive volume to have access to the configuration file in your host machine
 
 Run the docker command
 
 ```bash
 docker-compose up
 ```
+
+**IMPORTANT**: In order to connect the WoT Hive to the triplestore docker service a `POST` request must be sent to `/configuration/triplestore` containing the in the body the following JSON
+
+```json
+{
+    "updateEnpoint": "http://triplestore:4567/sparql",
+    "queryEnpoint": "http://triplestore:4567/sparql",
+    "queryUsingGET": true
+}
 
 ##  Jar quick start  
 ##### `Requires a triple store service publishing a SPARQL endpoint to store the Thing Descriptions`
