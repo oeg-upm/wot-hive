@@ -7,7 +7,7 @@ WoT Hive is an implementation of a [W3C Web of Things directory ](https://www.w3
 
 **Checkout our [wiki for more documentation](https://github.com/oeg-upm/wot-hive/wiki)**
 
-**Try the [WoT Hive demo](https://wothive.linkeddata.es/api/things)**, behind this deployment there is a RDF4J triplestore that does not support identifiers like 900de665-6a0b-4d48-abcb-2fb457015ba1, instead add a prefix like uuid:900de665-6a0b-4d48-abcb-2fb457015ba1. This issue is due to the triplestore used by the WoT Hive not the directory itself, other triplestores support the former ids.
+**Temporally the functionality that introduces the registration information in the Things has been disable (version 0.2.0)
 
 ##  Docker quick start
 Copy this receipt in a *docker-compose.yml* file
