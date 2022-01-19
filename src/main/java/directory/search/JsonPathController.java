@@ -1,24 +1,18 @@
 package directory.search;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
 import directory.Utils;
 import directory.exceptions.SearchJsonPathException;
-import directory.things.ThingsDAO;
 import net.minidev.json.JSONArray;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import wot.jtd.model.Thing;
 
 
 public class JsonPathController{
@@ -36,7 +30,7 @@ public class JsonPathController{
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_JSON);
 		response.status(200);
 		
-		return ThingsDAO.readAll().parallelStream().map(thing -> mapJsonPath(thing, path)).filter(JsonPathController::validList).flatMap(Collection::stream).collect(Collectors.toList());	
+		return null;//ThingsRepository.readAll().parallelStream().map(thing -> mapJsonPath(thing, path)).filter(JsonPathController::validList).flatMap(Collection::stream).collect(Collectors.toList());	
 	};
     
 	private static JsonPath checkJsonPath(String jsonPath) {
@@ -47,10 +41,10 @@ public class JsonPathController{
 	}
     
 
-	private static List<String> mapJsonPath(Thing thing, JsonPath path) {
+	private static List<String> mapJsonPath(JsonObject thing, JsonPath path) {
     		List<String> result = new ArrayList<>();
     		try {
-    			Object pathResult = JsonPath.parse(thing.toJson().toString()).read(path);
+    			Object pathResult = JsonPath.parse(thing.toString()).read(path);
 			if(!path.isDefinite()) {
 				((JSONArray) pathResult).forEach(elem -> result.add( instantiateJson(elem) ));
 			}else {
@@ -58,10 +52,8 @@ public class JsonPathController{
 				if(tmpElement!=null)
 					result.add(tmpElement);
 			}
-    		} catch (JsonProcessingException e) {
+    		} catch (PathNotFoundException e) {
 			throw new SearchJsonPathException(SearchJsonPathException.EXCEPTION_CODE_3);
-		} catch (PathNotFoundException e) {
-			// Nothing to do, this means there was no response
 		}
 
     		return result;

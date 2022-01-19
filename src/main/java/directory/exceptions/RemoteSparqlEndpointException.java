@@ -5,17 +5,18 @@ import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
 
-public class RemoteException extends RuntimeException{
+public class RemoteSparqlEndpointException extends RuntimeException{
 
 	private static final long serialVersionUID = -7384293668578068189L;
 
-	public RemoteException() {
+	public RemoteSparqlEndpointException() {
 		super();
 	}
 	
-	public RemoteException(String msg) {
+	public RemoteSparqlEndpointException(String msg) {
 		super(msg);
 	}
+	
 	
 
 	@SuppressWarnings("rawtypes")
@@ -23,7 +24,7 @@ public class RemoteException extends RuntimeException{
 		response.type(Utils.MIME_JSON);
 		response.status(400);
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
-		response.body(Utils.createErrorMessage("WOT-DIR-P", "Remote triple store is not responding correctly.", exception.toString()));
+		response.body(Utils.createErrorMessage("WOT-DIR-P", "Internal problem communnicating with remote SPARQL endpoint", exception.toString()));
 	};
 
 }

@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.upm.fi.oeg</groupId>
 	<artifactId>wothive</artifactId>
-	<version>0.1.8</version>
+	<version>0.2.0</version>
 	<name>Directory for the Web of Things</name>
 
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.release>14</maven.compiler.release>
+		<maven.compiler.release>17</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -40,17 +40,18 @@
 		    <artifactId>javatuples</artifactId>
 		    <version>1.2</version>
 		</dependency>
-		<!-- DNSN -->
+		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 		<dependency>
-		 	<groupId>org.jmdns</groupId>
-		 	<artifactId>jmdns</artifactId>
-		 	<version>3.5.7</version>
+		    <groupId>com.google.code.gson</groupId>
+		    <artifactId>gson</artifactId>
+		    <version>2.8.9</version>
 		</dependency>
-		<!-- Thing description translation -->
+				
+		<!-- Json Patch -->
 		<dependency>
-			  <groupId>es.upm.fi.oeg</groupId>
-			  <artifactId>wot-jtd</artifactId>
-			  <version>0.2.8</version>
+		    <groupId>com.github.java-json-tools</groupId>
+		    <artifactId>json-patch</artifactId>
+		    <version>1.13</version>
 		</dependency>
 		<!-- Json path filter -->
 		<dependency>
@@ -88,9 +89,48 @@
 	        <artifactId>log4j</artifactId>
 	        <version>1.2.17</version>
 	    </dependency>
-	
-			    
+					
+		<!-- Titanium -->
+		<dependency>
+		    <groupId>com.apicatalog</groupId>
+		    <artifactId>titanium-json-ld</artifactId>
+		    <version>1.2.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.glassfish</groupId>
+		    <artifactId>jakarta.json</artifactId>
+		    <version>2.0.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.jena/jena-arq -->
+		<dependency>
+		    <groupId>org.apache.jena</groupId>
+		    <artifactId>jena-arq</artifactId>
+		    <version>4.2.0</version>
+		</dependency>
+		<!-- Json schema -->
+		<dependency>
+		    <groupId>com.github.everit-org.json-schema</groupId>
+		    <artifactId>org.everit.json.schema</artifactId>
+		    <version>1.12.3</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.jena/jena-shacl -->
+		<dependency>
+		    <groupId>org.apache.jena</groupId>
+		    <artifactId>jena-shacl</artifactId>
+		    <version>4.3.2</version>
+		</dependency>
+				
 	</dependencies>
+	
+	 <repositories>
+	    <repository>
+	        <id>jitpack.io</id>
+	        <url>https://jitpack.io</url>
+	    </repository>
+	</repositories>
+  
+	
+	
 	
 	<build>
      <plugins>

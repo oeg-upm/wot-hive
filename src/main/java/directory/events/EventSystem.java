@@ -1,35 +1,32 @@
 package directory.events;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Stream;
-
 import org.javatuples.Triplet;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import directory.Directory;
 import directory.Utils;
 import info.macias.sse.EventBroadcast;
 import info.macias.sse.events.MessageEvent;
-import wot.jtd.model.Thing;
+
 
 public class EventSystem {
 
+	// -- Attributes
+	
 	private static List<Subscriber> subscriptions = new CopyOnWriteArrayList<>();
 	public static final EventBroadcast broadcaster = new EventBroadcast();
-
+	private static final String WILDCARD = "*";
+	
+	// -- Constructor
+	
 	public EventSystem() {
 		super();
 	}
@@ -45,10 +42,11 @@ public class EventSystem {
 			Directory.LOGGER.error(e.toString());
 		}
 	}
+	
 
 	private void sendEventMessage(Subscriber subscriber, String lastEventId) {
 		if(lastEventId!=null) {
-			boolean indexFound = lastEventId.equals("*");
+			boolean indexFound = lastEventId.equals(WILDCARD);
 			try (BufferedReader br = new BufferedReader(new FileReader(Directory.getConfiguration().getService().getEventsFile()))) {
 				String line;
 				while ((line = br.readLine()) != null) {
@@ -65,14 +63,17 @@ public class EventSystem {
 		
 	}
 
-
+	private static final String EVENT_TOKEN_ID = "id";
+	private static final String EVENT_TOKEN_SIMPLE = "simple";
+	private static final String EVENT_TOKEN_EXTENDED = "extended";
+	private static final String EVENT_TOKEN_TYPE = "type";
 
 	private Triplet<MessageEvent, MessageEvent, DirectoryEvent> transformRawEvent(String rawLine) {
-		JsonObject json = new Gson().fromJson(rawLine, JsonObject.class);
-		String id = json.get("id").getAsString();
-		String simple = json.get("simple").getAsString();
-		String extended = json.get("extended").getAsString();
-		String type = json.get("type").getAsString();
+		JsonObject json = Utils.toJson(rawLine);
+		String id = json.get(EVENT_TOKEN_ID).getAsString();
+		String simple = json.get(EVENT_TOKEN_SIMPLE).getAsString();
+		String extended = json.get(EVENT_TOKEN_EXTENDED).getAsString();
+		String type = json.get(EVENT_TOKEN_TYPE).getAsString();
 		MessageEvent mesasage = new MessageEvent.Builder().setId(id).setEvent(type).setData(simple).build();
 		MessageEvent extendedMesasage = new MessageEvent.Builder().setId(id).setEvent(type).setData(extended).build();
 		Triplet<MessageEvent, MessageEvent, DirectoryEvent> triplet = new Triplet<>(mesasage, extendedMesasage,
@@ -86,7 +87,7 @@ public class EventSystem {
 		igniteEvent(thingId, event, null);
 	}
 
-	public void igniteEvent(String thingId, DirectoryEvent event, Thing thing) {
+	public void igniteEvent(String thingId, DirectoryEvent event, JsonObject thing) {
 		String id = Utils.buildMessage(thingId, "/events/", event.getEvent());
 		String data = Utils.buildMessage("{\"id\": \"", thingId, "\"}");
 		String extendedData = prepareExtendedMessage(thing);
@@ -116,11 +117,11 @@ public class EventSystem {
 		return subscriber.getEventType().equals(DirectoryEvent.ALL) || subscriber.getEventType().equals(event);
 	}
 
-	private String prepareExtendedMessage(Thing thing) {
+	private String prepareExtendedMessage(JsonObject thing) {
 		String extendedMsg = null;
 		try {
 			if (thing != null)
-				extendedMsg = thing.toJson().toString();
+				extendedMsg = thing.toString();
 		} catch (Exception e) {
 			Directory.LOGGER.error(e.toString());
 		}

@@ -63,6 +63,7 @@ public class DirectoryConfiguration extends AbstractConfiguration{
 
 	// -- Ancillary methods
 	private static final String DEFAULT_TRIPLESTORE_ENDPOINT = "http://localhost:3030/sparql";
+	
 
 	public DirectoryConfiguration createDefault() {
 		try {

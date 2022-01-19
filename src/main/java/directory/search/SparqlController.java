@@ -2,10 +2,11 @@ package directory.search;
 
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
+import org.apache.jena.sparql.resultset.ResultsFormat;
 
 import directory.Utils;
 import directory.exceptions.SearchSparqlException;
-import directory.triplestore.TriplestoreEndpoint;
+import directory.triplestore.Sparql;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -34,8 +35,9 @@ public class SparqlController {
 			throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_1);
 		
 		String validMime = validateQueryAndMime(query, request.headers("Accept")) ;
-	
-		return TriplestoreEndpoint.sendQueryStream(query, validMime);
+		ResultsFormat format = ResultsFormat.FMT_RS_JSON;
+		System.out.println(ResultsFormat.guessSyntax(validMime));
+		return Sparql.query(query, format);
     };
     
     private static String validateQueryAndMime(String query, String mimeType) {

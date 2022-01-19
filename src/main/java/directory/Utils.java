@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,9 +14,23 @@ import java.util.Optional;
 
 import org.apache.jena.riot.RDFFormat;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import directory.exceptions.ThingException;
+import spark.ExceptionHandler;
+import spark.Request;
+import spark.Response;
+
+
 
 public class Utils {
 
+	public static boolean InjectRegistrationInfo = false;
+	
 	// -- Attributes
 	public static final Map<String,RDFFormat> WOT_TD_MYMES = new HashMap<>();
 	public static final String MIME_CSV = "text/csv";
@@ -31,7 +46,7 @@ public class Utils {
 	public static final String METHOD_PUT = "PUT";
 	
 	public static final String MIME_DIRECTORY_ERROR = "application/problem+json";
-	protected static final String DIRECTORY_VERSION = "WoTHive/0.1.8";
+	protected static final String DIRECTORY_VERSION = "WoTHive/0.2.0";
 	protected static final String WOT_DIRECTORY_LOGO = "\n"+
 			"██╗    ██╗ ██████╗ ████████╗\n" + 
 			"██║    ██║██╔═══██╗╚══██╔══╝\n" + 
@@ -51,6 +66,7 @@ public class Utils {
 
 	
 	
+	
 	static {
 		WOT_TD_MYMES.put(Utils.MIME_THING, THING_RDFFormat);
 		WOT_TD_MYMES.put(Utils.MIME_TURTLE, RDFFormat.TURTLE);
@@ -58,7 +74,11 @@ public class Utils {
 		WOT_TD_MYMES.put("application/n-triples", RDFFormat.NTRIPLES);
 	}
 	
-
+	// Serialization
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static final Gson GSON = new Gson();
+	
+	// others
 	
 	// -- Constructor
 	private Utils() {
@@ -91,6 +111,10 @@ public class Utils {
 		return message.toString();
 	}
 	
+	public static String buildEncoded(String ... values) {
+		return Base64.getEncoder().encodeToString(buildMessage(values).getBytes());
+	}
+	
 	private static final String SERVICE_PORT= "--service.port=";
 	protected static Integer parseArgumentPort(String[] args, int defaultPort) {
 		int port = defaultPort;
@@ -116,5 +140,29 @@ public class Utils {
 		return result;
 	}
 	
+	public static JsonObject toJson(String td) {
+		return GSON.fromJson(td, JsonObject.class);
+	}
+	
+	public static JsonObject mergePatch(JsonObject json, JsonObject partialUpdate) {
+		try {
+			JsonNode partialJson = OBJECT_MAPPER.readTree(partialUpdate.toString());
+			JsonNode existingThingNode = OBJECT_MAPPER.readTree(json.toString());
+			JsonMergePatch patch = JsonMergePatch.fromJson(partialJson);
+			JsonObject newThing = Utils.toJson(patch.apply(existingThingNode).toString()).deepCopy();
+			return newThing;
+		}catch(Exception e) {
+			throw new ThingException(e.toString());
+		}	
+	}
+	
+	@SuppressWarnings("rawtypes")
+	protected static final ExceptionHandler handleException = (Exception exception, Request request, Response response) -> {
+		response.type(Utils.MIME_JSON);
+		response.status(400);
+		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
+		response.body(Utils.createErrorMessage("WOT-DIR-R", "Unknown exception", exception.toString()));
+	};
+
 	
 }

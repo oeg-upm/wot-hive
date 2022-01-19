@@ -29,7 +29,7 @@ public class SearchSparqlException  extends RuntimeException {
 	public static final String EXCEPTION_CODE_3 = "searchSparql-003"; // error applying Sparql
 	
 	@SuppressWarnings("rawtypes")
-	public static final ExceptionHandler handleSearchXPathException = (Exception exception, Request request, Response response) -> {
+	public static final ExceptionHandler handleSearchSparqlException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(400);
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);

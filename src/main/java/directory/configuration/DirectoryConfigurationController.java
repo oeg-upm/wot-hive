@@ -1,6 +1,7 @@
 package directory.configuration;
 
-import com.google.common.net.HttpHeaders;
+
+import org.apache.http.HttpHeaders;
 
 import directory.Directory;
 import directory.Utils;
