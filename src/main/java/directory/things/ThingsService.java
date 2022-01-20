@@ -6,6 +6,9 @@ import java.util.Base64;
 import java.util.List;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.resultset.ResultsFormat;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import directory.Utils;
 import directory.events.DirectoryEvent;
@@ -93,20 +96,20 @@ public class ThingsService {
 		
 		String rawContext = td.get("@context").toString();
 		if(Utils.InjectRegistrationInfo)
-			rawContext = Things.inject(td.get("@context"), Things.TDD_RAW_CONTEXT);
+			rawContext = Things.inject(td, "@context", Things.TDD_RAW_CONTEXT).toString();
 	
 		String frame = Utils.buildEncoded(" { \"@context\" : ",rawContext , ", \"@type\" : \"Thing\" }");
 		if(td.has("@type") && hasTypeThing) {
 			frame = Utils.buildEncoded(" { \"@context\" : ",rawContext, ", \"@type\" : ",td.get("@type").toString()," }");
 		}else if(td.has("@type") && !hasTypeThing) {
-			frame = Utils.buildEncoded(" { \"@context\" : ",rawContext , ", \"@type\" : ",Things.inject(td.get("@type"), "Thing")," }");
+			frame = Utils.buildEncoded(" { \"@context\" : ",rawContext , ", \"@type\" : ",Things.inject(td, "@type", "Thing").toString()," }");
 		}
 		return Utils.buildMessage("GRAPH <",MANAGEMENT_GRAPH,"> { <",graphId,"> <hive:b64:security> \"",security,"\" . <",graphId,"> <hive:b64:frame> \"",frame,"\" . <",graphId,"> <hive:b64:type> \"",hasTypeThing.toString(),"\"}");
 	}
 	
 	private static void enrichTd(JsonObject td) {
 		if(!Things.hasThingType(td))
-			Things.inject(td.get("@type"), "Thing");
+			td.add("@type", (new Gson()).fromJson( Things.inject(td, "@type", "Thing"), JsonElement.class));
 		if(Utils.InjectRegistrationInfo) {
 			//TODO:
 		}
@@ -118,14 +121,18 @@ public class ThingsService {
 	 * @return returns a JSON-LD 1.1 representation of the Thing
 	 */
 	protected static final JsonObject retrieveThing(String id) {
+		System.out.println(id);
 		String graphId = createGraphId(id);
 		if(!exists(graphId))
 			throw new ThingException(Utils.buildMessage("Requested Thing not found"));
 		
 		// Retrieve meta information of Thing
-		String query = Utils.buildMessage("SELECT ?security ?frame ?type WHERE { <",graphId,"> <hive:b64:security> ?security ; <hive:b64:frame> ?frame; <hive:b64:type> ?type . } ");
+		String query = Utils.buildMessage("SELECT ?security ?frame ?type WHERE { GRAPH <",MANAGEMENT_GRAPH, "> { <",graphId,"> <hive:b64:security> ?security ; <hive:b64:frame> ?frame; <hive:b64:type> ?type . } }");
 		ByteArrayOutputStream baos = Sparql.query(query, ResultsFormat.FMT_RS_CSV);
-		String[] rawResponse = baos.toString().replace("security,frame,type", "").trim().split(",");
+		String baosRaw = baos.toString().replace("security,frame,type", "").trim();
+		if(baosRaw.isEmpty())
+			throw new ThingException(Utils.buildMessage("Requested Thing not found"));
+		String[] rawResponse = baosRaw.split(",");
 		String security = new String(Base64.getDecoder().decode(rawResponse[0].getBytes()));
 		String frame = new String(Base64.getDecoder().decode(rawResponse[1].getBytes()));
 		Boolean type = Boolean.valueOf(new String(rawResponse[2]));
@@ -140,7 +147,7 @@ public class ThingsService {
 
 		if(!type) 
 			Things.cleanThingType(response);
-		
+		System.out.println(response);
 		return response;
 	}
 	

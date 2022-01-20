@@ -39,12 +39,13 @@ public class Things {
 	
 	public static String TDD_RAW_CONTEXT = "https://raw.githubusercontent.com/oeg-upm/wot-hive/AndreaCimminoArriaga-tdd-context/tdd.jsonld";
 	
-	protected static String inject(JsonElement value, String injection) {
+	protected static String inject(JsonObject json, String key, String injection) {
+		JsonElement value = json.deepCopy().get(key);
 		JsonArray values = new JsonArray();
 		if(value instanceof JsonArray) {
 			values = value.getAsJsonArray();
 		}else if(value instanceof JsonPrimitive) {
-			values.add(value.toString());
+			values.add(value);
 		}
 		values.add(injection);
 		return values.toString();

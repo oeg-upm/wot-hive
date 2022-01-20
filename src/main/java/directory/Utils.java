@@ -46,7 +46,7 @@ public class Utils {
 	public static final String METHOD_PUT = "PUT";
 	
 	public static final String MIME_DIRECTORY_ERROR = "application/problem+json";
-	protected static final String DIRECTORY_VERSION = "WoTHive/0.2.0";
+	protected static final String DIRECTORY_VERSION = "WoTHive/0.2.1";
 	protected static final String WOT_DIRECTORY_LOGO = "\n"+
 			"██╗    ██╗ ██████╗ ████████╗\n" + 
 			"██║    ██║██╔═══██╗╚══██╔══╝\n" + 

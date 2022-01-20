@@ -67,10 +67,9 @@ public class DirectoryConfiguration extends AbstractConfiguration{
 
 	public DirectoryConfiguration createDefault() {
 		try {
-			this.triplestore = new TriplestoreConfiguration(DEFAULT_TRIPLESTORE_ENDPOINT, DEFAULT_TRIPLESTORE_ENDPOINT,
-					true);
+			this.triplestore = new TriplestoreConfiguration(DEFAULT_TRIPLESTORE_ENDPOINT, DEFAULT_TRIPLESTORE_ENDPOINT);
 			this.service = new ServiceConfiguration("https://oeg.fi.upm.es/wothive/", 9000, 200, 2, 30000, 100, "./events.json");
-			this.validation = new ValidationConfiguration(true, true, "./schema.json", "./shape.ttl");
+			this.validation = new ValidationConfiguration(false, true, "./schema.json", "./shape.ttl");
 		} catch (Exception e) {
 			Directory.LOGGER.error(e.toString());
 		}

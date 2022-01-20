@@ -4,8 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import directory.Directory;
 import directory.exceptions.ConfigurationException;
 
 public class TriplestoreConfiguration extends AbstractConfiguration{
@@ -13,7 +15,8 @@ public class TriplestoreConfiguration extends AbstractConfiguration{
 	// -- Attributes
 	private URI updateEnpoint = null;
 	private URI queryEnpoint = null;
-	private Boolean queryUsingGET = true;
+	private String username = null;
+	private String password = null;
 	
 	// -- Constructors
 	
@@ -21,18 +24,17 @@ public class TriplestoreConfiguration extends AbstractConfiguration{
 		super();
 	}
 	
-	public TriplestoreConfiguration( String queryEnpoint, String updateEnpoint, Boolean queryUsingGET) throws URISyntaxException {
+	public TriplestoreConfiguration( String queryEnpoint, String updateEnpoint) throws URISyntaxException {
 		super();
 		this.updateEnpoint = new URI(updateEnpoint);
 		this.queryEnpoint = new URI(queryEnpoint);
-		this.queryUsingGET = queryUsingGET;
+
 	}
 
-	public TriplestoreConfiguration( URI queryEnpoint, URI updateEnpoint, Boolean queryUsingGET) {
+	public TriplestoreConfiguration( URI queryEnpoint, URI updateEnpoint) {
 		super();
 		this.updateEnpoint = updateEnpoint;
 		this.queryEnpoint = queryEnpoint;
-		this.queryUsingGET = queryUsingGET;
 	}
 
 	// -- Getters & Setters
@@ -52,17 +54,25 @@ public class TriplestoreConfiguration extends AbstractConfiguration{
 	public void setQueryEnpoint(URI queryEnpoint) {
 		this.queryEnpoint = queryEnpoint;
 	}
-
-	public Boolean getQueryUsingGET() {
-		return queryUsingGET;
+		
+	public String getUsername() {
+		return username;
 	}
 
-	public void setQueryUsingGET(Boolean queryUsingGET) {
-		this.queryUsingGET = queryUsingGET;
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	// Serialization methods
-		
+	
 	public static TriplestoreConfiguration serialiseFromJson(String rawJson) {
 		JsonObject body = null;
 		try {
@@ -75,9 +85,14 @@ public class TriplestoreConfiguration extends AbstractConfiguration{
 		
 		validatePayload( body, "updateEnpoint", ConfigurationException.EXCEPTION_CODE_2, "Provided JSON lacks of mandatory key \"updateEnpoint\" with the triplestore endpoint for updating data");
 		validatePayload( body, "queryEnpoint", ConfigurationException.EXCEPTION_CODE_2, "Provided JSON lacks of mandatory key \"queryEnpoint\" with the triplestore endpoint for querying data");
-		validatePayload( body, "queryUsingGET", ConfigurationException.EXCEPTION_CODE_2, "Provided JSON lacks of mandatory key \"queryUsingGET\" with a boolean value indicating if the communication with the triplestore shuld be done using the GET method. If false the directory will use POST.");
+		if((!body.has("username") && body.has("password")) ||(body.has("username") && !body.has("password")))
+			throw new ConfigurationException(ConfigurationException.EXCEPTION_CODE_2, "Provided JSON must have both optional keywords \"username\" and \"passwords\" in order to connect to a remote triple store");
+		if(!body.has("username"))
+			Directory.LOGGER.info("No 'username' has been provided for the remote triple store");
+		if(!body.has("password"))
+			Directory.LOGGER.info("No 'password' has been provided for the remote triple store");
 		
-		return (new Gson()).fromJson(body, TriplestoreConfiguration.class);
+		return (new GsonBuilder().serializeNulls().create()).fromJson(body, TriplestoreConfiguration.class);
 	}
 	
 

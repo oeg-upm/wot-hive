@@ -2,6 +2,12 @@ package directory.triplestore;
 
 import java.io.ByteArrayOutputStream;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.Query;
@@ -20,6 +26,7 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.eclipse.jetty.client.HttpClient;
 
 import directory.Directory;
 import directory.Utils;
@@ -43,11 +50,20 @@ public class Sparql {
 	// query methods
 	
 	public static ByteArrayOutputStream query(String sparql, ResultsFormat format) {
+		return  query(sparql, format, Directory.getConfiguration().getTriplestore().getQueryEnpoint().toString(), Directory.getConfiguration().getTriplestore().getUsername(), Directory.getConfiguration().getTriplestore().getPassword());
+	}
+	
+	public static ByteArrayOutputStream query(String sparql, ResultsFormat format, String endpoint, String username, String password) {
 
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
 			Query query = QueryFactory.create(sparql) ;
-	        QueryExecution qexec = QueryExecutionFactory.sparqlService(Directory.getConfiguration().getTriplestore().getQueryEnpoint().toString(), query);        
+			QueryExecution qexec = QueryExecutionFactory.sparqlService(endpoint, query);
+			if(username!= null && password!=null) {
+				CloseableHttpClient client = connectPW(endpoint, username,password);
+				qexec = QueryExecutionFactory.sparqlService(Directory.getConfiguration().getTriplestore().getQueryEnpoint().toString(), query, client);        
+			}
+
 			if(query.isSelectType()) {
 				ResultSetFormatter.output(stream, qexec.execSelect(), format);
 	        }else if(query.isAskType()) {
@@ -81,12 +97,27 @@ public class Sparql {
         return stream;
 	}
 	
+	public static CloseableHttpClient connectPW(String URL, String user, String password) {
+		  BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
+		  Credentials credentials = new UsernamePasswordCredentials(user, password);
+		  credsProvider.setCredentials(AuthScope.ANY, credentials);
+		  return  HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
+
+	}
 	
+	public static void update(String sparql ) { 
+		update( sparql,  Directory.getConfiguration().getTriplestore().getUpdateEnpoint().toString(), Directory.getConfiguration().getTriplestore().getUsername(), Directory.getConfiguration().getTriplestore().getPassword());
+	}
 	
-	public static void update(String sparql)  {
+	public static void update(String sparql, String endpoint, String username, String password)  {
 		try {
 			UpdateRequest updateRequest = UpdateFactory.create(sparql);
-			UpdateProcessor updateProcessor = UpdateExecutionFactory.createRemote(updateRequest, Directory.getConfiguration().getTriplestore().getUpdateEnpoint().toString());
+			UpdateProcessor updateProcessor = UpdateExecutionFactory.createRemote(updateRequest, endpoint);
+			
+			if(username!=null && password!=null) {
+				CloseableHttpClient client = connectPW(endpoint,username, password);
+				updateProcessor = UpdateExecutionFactory.createRemote(updateRequest, endpoint, client);
+			}	
 			updateProcessor.execute();
 		 }catch(QueryException e){
 	        throw new RemoteSparqlEndpointException(e.toString()); // syntax error
