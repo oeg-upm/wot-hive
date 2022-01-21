@@ -1,0 +1,16 @@
+version: '2'
+services:
+  triplestore:
+    image: stain/jena-fuseki:4.0.0
+    environment:
+     ADMIN_PASSWORD: pw123
+    volumes:
+    - ./fuseki:/fuseki
+    ports:
+      - '3030:3030'
+  wothive:
+    image: acimmino/wot-hive:auroral-dev
+    volumes:
+    - ./configuration.json:/usr/src/wothive/configuration.json
+    ports:
+      - '9000:9000'
