@@ -7,7 +7,7 @@ WoT Hive is an implementation of a [W3C Web of Things directory ](https://www.w3
 
 **Checkout our [wiki for more documentation](https://github.com/oeg-upm/wot-hive/wiki)**
 
-**Temporally the functionality that introduces the registration information in the Things has been disable (version 0.2.0). Also, at the light of a new update in the [Thing Descriptions the semantic validation lacks of a proper shacl shape file](https://github.com/w3c/wot-thing-description/issues/1345) and therefore it is strongly recomended to disable this kind of validation.**
+**Temporally the functionality that introduces the registration information in the Things has been disable (version 0.2.0 and above). Also, at the light of a new update in the [Thing Descriptions the semantic validation lacks of a proper shacl shape file](https://github.com/w3c/wot-thing-description/issues/1345) and therefore it is strongly recomended to disable this kind of validation.**
 
 ##  Docker quick start
 Copy this receipt in a *docker-compose.yml* file
