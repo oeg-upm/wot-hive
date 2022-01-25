@@ -2,6 +2,8 @@ package directory.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.jayway.jsonpath.JsonPath;
@@ -9,6 +11,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 
 import directory.Utils;
 import directory.exceptions.SearchJsonPathException;
+import directory.things.ThingsService;
 import net.minidev.json.JSONArray;
 import spark.Request;
 import spark.Response;
@@ -29,8 +32,8 @@ public class JsonPathController{
 		
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_JSON);
 		response.status(200);
-		
-		return null;//ThingsRepository.readAll().parallelStream().map(thing -> mapJsonPath(thing, path)).filter(JsonPathController::validList).flatMap(Collection::stream).collect(Collectors.toList());	
+		List<String> thingsIds = ThingsService.retrieveThingsIds(null, null);
+		return thingsIds.parallelStream().map(ThingsService::retrieveThing).flatMap(thing -> mapJsonPath(thing, path).stream()).collect(Collectors.toList());
 	};
     
 	private static JsonPath checkJsonPath(String jsonPath) {

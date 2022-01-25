@@ -57,7 +57,6 @@ public class ThingsController {
 		response.status(200);
 		
 		List<String> thingsIds = ThingsService.retrieveThingsIds(limit, offset);
-		System.out.println(thingsIds);
 		if(limit!=null) // Listing with pagination 
 			prepareListingResponse(response,  limit,  offset,  thingsIds.size());
 		return thingsIds.parallelStream().map(ThingsService::retrieveThing).collect(Collectors.toList());

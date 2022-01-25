@@ -36,9 +36,8 @@ public class ThingsService {
 	// for method: delete
 	private static final String QUERY_CLEAR_GRAPH = "CLEAR GRAPH <";
 	private static final String QUERY_CLOSE_URI = ">";
-	private static final String QUERY_DELETE_THING_1 = "DELETE { <";
-	private static final String QUERY_DELETE_THING_2 = Utils.buildMessage("> ?p ?o . } WHERE{ GRAPH <",MANAGEMENT_GRAPH,"> {  ?s ?p ?o . } }");
-	
+	private static final String QUERY_DELETE_THING_1 = Utils.buildMessage("DELETE WHERE { GRAPH <",MANAGEMENT_GRAPH,"> {  <");
+	private static final String QUERY_DELETE_THING_2 =	"> ?p ?o . } }";
 	// -- Constructor
 
 	private ThingsService() {
@@ -120,7 +119,7 @@ public class ThingsService {
 	 * @param id of the Thing to be found
 	 * @return returns a JSON-LD 1.1 representation of the Thing
 	 */
-	protected static final JsonObject retrieveThing(String id) {
+	public static final JsonObject retrieveThing(String id) {
 		System.out.println(id);
 		String graphId = createGraphId(id);
 		if(!exists(graphId))
