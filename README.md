@@ -1,7 +1,7 @@
 
 ![logo](https://github.com/oeg-upm/wot-hive/blob/AndreaCimminoArriaga-wothive-logo/logo.png)
 
-[![Version](https://img.shields.io/badge/Version-0.2.2-orange)](https://github.com/oeg-upm/wot-hive/releases/tag/v0.2.2) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GitHub stars]
+[![Version](https://img.shields.io/badge/Version-0.2.2-orange)](https://github.com/oeg-upm/wot-hive/releases/tag/v0.2.2) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 WoT Hive is an implementation of a [W3C Web of Things directory ](https://www.w3.org/TR/wot-discovery/). This implementation is compliant with the standard specification but aims at providing enriched features thanks to the usage of other W3C standards related to Semantic Web technologies.
 
