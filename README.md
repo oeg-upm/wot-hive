@@ -16,20 +16,22 @@ Copy this receipt in a *docker-compose.yml* file
 version: '2'
 services:
   triplestore:
-    image: acimmino/helio-cloud-rdf4jstore:latest
+    image: acimmino/auroral-fuseky:latest
+    environment:
+     ADMIN_PASSWORD: pw123
     volumes:
-    - ./triplestore:/usr/src/helio-cloud-rdf4jstore/rdf4j
+    - triplestore:/fuseki
     ports:
-      - '4567:4567'
+      - '3030:3030'
   wothive:
-    image: acimmino/wot-hive:latest
+    image: acimmino/wot-hive:auroral-dev
     # volumes:
-    # - ./wothive/configuration.json:/usr/src/wothive/configuration.json
+    # - ./configuration.json:/usr/src/wothive/configuration.json
     ports:
       - '9000:9000'
+volumes:
+  triplestore:
 ```
-
-[OPTIONAL] Uncomment wothive volume to have access to the configuration file in your host machine
 
 Run the docker command
 
@@ -37,12 +39,15 @@ Run the docker command
 docker-compose up
 ```
 
-**IMPORTANT**: In order to connect the WoT Hive to the triplestore docker service a `POST` request must be sent to `/configuration/triplestore` containing the in the body the following JSON
+
+[OPTIONAL] Uncomment wothive volume to bind your own configuration file for the wothive. Default file is configured to connect the fuseki service running in the docker-compose network.
+
+[OPTIONAL 2] If you want to change the fuseki service location (Move outside docker for instance), you can change the configuration of the wothive also via API. A `POST` request must be sent to `/configuration/triplestore` containing the in the body the following JSON. This 
 
 ```json
 {
-    "updateEnpoint": "http://triplestore:4567/sparql",
-    "queryEnpoint": "http://triplestore:4567/sparql",
+    "updateEnpoint": "http://triplestore:3030/sparql",
+    "queryEnpoint": "http://triplestore:3030/sparql",
     "queryUsingGET": true
 }
 
@@ -67,8 +72,8 @@ In order to connect the WoT Hive to a remote triple store a `POST` request must 
 
 ```json
 {
-    "updateEnpoint": "http://localhost:4567/sparql",
-    "queryEnpoint": "http://localhost:4567/sparql",
+    "updateEnpoint": "http://localhost:3030/sparql",
+    "queryEnpoint": "http://localhost:3030/sparql",
     "queryUsingGET": true
 }
 ```
