@@ -1,0 +1,18 @@
+version: '2'
+services:
+  triplestore:
+    image: acimmino/auroral-fuseky:latest
+    environment:
+     ADMIN_PASSWORD: pw123
+    volumes:
+    - triplestore:/fuseki
+    ports:
+      - '3030:3030'
+  wothive:
+    image: acimmino/wot-hive:auroral-dev
+    # volumes:
+    # - ./configuration.json:/usr/src/wothive/configuration.json
+    ports:
+      - '9000:9000'
+volumes:
+  triplestore:
