@@ -50,6 +50,7 @@ docker-compose up
     "queryEnpoint": "http://triplestore:3030/sparql",
     "queryUsingGET": true
 }
+```
 
 ##  Jar quick start  
 ##### `Requires a triple store service publishing a SPARQL endpoint to store the Thing Descriptions`
