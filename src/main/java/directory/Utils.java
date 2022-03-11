@@ -161,6 +161,7 @@ public class Utils {
 		response.type(Utils.MIME_JSON);
 		response.status(400);
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
+		exception.printStackTrace();
 		response.body(Utils.createErrorMessage("WOT-DIR-R", "Unknown exception", exception.toString()));
 	};
 

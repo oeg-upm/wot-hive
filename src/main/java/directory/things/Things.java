@@ -108,7 +108,7 @@ public class Things {
 	public static Model toModel(JsonObject td) {
 		Model model = ModelFactory.createDefaultModel();
 		toRDF(td).toList()
-			.parallelStream()
+			.stream()
 				.forEach(elem -> model.add(toTriple(elem)));
 		return model;
 	}

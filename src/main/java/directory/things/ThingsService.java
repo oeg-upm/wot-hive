@@ -65,10 +65,24 @@ public class ThingsService {
 	protected static final boolean createUpdateThing(JsonObject td, String id) {
 		String graphId = createGraphId(id);
 		Boolean exists = exists(graphId);
-		if(exists)
-			deleteThing(id);
-		createThing(td, id);
+		updateThing(td, id);
 		return exists;
+	}
+	
+	protected static final void updateThing(JsonObject td, String id) {	
+		String graphId = createGraphId(id);
+		// Prepare management info
+		String managementQuery = prepareManagementInformation(td,  graphId);
+		// Prepare td
+		enrichTd(td);
+		Model thing = Things.toModel(td);
+		// DONE: Validate td
+		Validation.semanticValidation(id, thing);
+		Validation.syntacticValidation(td);
+		// Store + event
+		String query = Utils.buildMessage("\n DROP GRAPH <"+graphId+"> ; INSERT DATA { GRAPH <",graphId,"> { ",Things.printModel(thing, "NT"),"} ",managementQuery," }");
+		Sparql.update(query);
+		EventsController.eventSystem.igniteEvent(id, DirectoryEvent.CREATE);
 	}
 	
 	protected static final void createThing(JsonObject td, String id) {	
