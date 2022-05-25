@@ -1,13 +1,13 @@
 package directory.events;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.javatuples.Triplet;
 
 import com.google.gson.JsonObject;
@@ -24,7 +24,7 @@ public class EventSystem {
 	private static List<Subscriber> subscriptions = new CopyOnWriteArrayList<>();
 	public static final EventBroadcast broadcaster = new EventBroadcast();
 	private static final String WILDCARD = "*";
-	
+	public static Queue<Triplet<MessageEvent, MessageEvent, DirectoryEvent>> pastEvents = new LinkedBlockingQueue<Triplet<MessageEvent, MessageEvent, DirectoryEvent>>(Directory.getConfiguration().getService().getEventsSize());
 	// -- Constructor
 	
 	public EventSystem() {
@@ -47,20 +47,10 @@ public class EventSystem {
 	private void sendEventMessage(Subscriber subscriber, String lastEventId) {
 		if(lastEventId!=null) {
 			boolean indexFound = lastEventId.equals(WILDCARD);
-			try (BufferedReader br = new BufferedReader(new FileReader(Directory.getConfiguration().getService().getEventsFile()))) {
-				String line;
-				while ((line = br.readLine()) != null) {
-				    	Triplet<MessageEvent, MessageEvent, DirectoryEvent> triplet = transformRawEvent(line);
-				    	indexFound |= triplet.getValue0().getId().equals(lastEventId);
-				    	if(indexFound && subscriberInterested(subscriber, triplet.getValue2())) 
-				    		sendEventMessage(subscriber, triplet.getValue0(), triplet.getValue1());
-				}
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-			
-		
+			pastEvents.parallelStream()
+			.filter(t -> (indexFound | t.getValue0().getId().equals(lastEventId)) && (subscriberInterested(subscriber, t.getValue2())))
+			.forEach(t -> sendEventMessage(subscriber, t.getValue0(), t.getValue1()));
+		}		
 	}
 
 	private static final String EVENT_TOKEN_ID = "id";
@@ -98,7 +88,10 @@ public class EventSystem {
 		subscriptions.parallelStream().filter(subscriber -> subscriberInterested(subscriber, event))
 				.forEach(subscriber -> sendEventMessage(subscriber, mesasage, extendedMesasage));
 		Triplet<MessageEvent, MessageEvent, DirectoryEvent> triplet = new Triplet<>(mesasage, extendedMesasage, event);
-		storeEvent(triplet);
+		// PERSIST EVENT IN SYSTEM
+		EventSystem.pastEvents.add(triplet);
+		if(EventSystem.pastEvents.size()>9000)
+			EventSystem.pastEvents.poll();
 	}
 
 	private void sendEventMessage(Subscriber subscriber, MessageEvent mesasage, MessageEvent extendedMesasage) {
@@ -130,23 +123,7 @@ public class EventSystem {
 
 	// storing events
 
-	private void storeEvent(Triplet<MessageEvent, MessageEvent, DirectoryEvent> triplet) {
-
-		JsonObject json = new JsonObject();
-		json.addProperty("id", triplet.getValue0().getId());
-		json.addProperty("simple", triplet.getValue0().getData());
-		json.addProperty("extended", triplet.getValue1().getData());
-		json.addProperty("type", triplet.getValue2().toString());
-		String eventsFile = Directory.getConfiguration().getService().getEventsFile();
-		try (FileWriter fw = new FileWriter(eventsFile, true)) {
-			fw.write(json.toString() + "\n");
-			while (numberOfEvents(eventsFile) >= Directory.getConfiguration().getService().getEventsSize())
-				removeFirstLine(eventsFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
+	
 
 	private int numberOfEvents(String eventsFile) throws IOException {
 		int count = 0;

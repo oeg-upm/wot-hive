@@ -30,6 +30,7 @@ import directory.configuration.DirectoryConfiguration;
 import directory.configuration.DirectoryConfigurationController;
 import directory.events.EventsController;
 import directory.exceptions.ConfigurationException;
+import directory.exceptions.NotFoundException;
 import directory.exceptions.RemoteSparqlEndpointException;
 import directory.exceptions.SearchJsonPathException;
 import directory.exceptions.SearchSparqlException;
@@ -80,19 +81,7 @@ public class Directory {
 		
 		
 		path("/api", () -> {
-			path("/things", () -> {
-				get("", ThingsController.listing);
-				get("/:id", ThingsController.retrieval);
-				post("/", ThingsController.registrationAnonymous);
-				post("", ThingsController.registrationAnonymous);
-				put("/:id", ThingsController.registrationUpdate);
-				patch("/:id", ThingsController.partialUpdate);
-				delete("/:id", ThingsController.deletion);
-				exception(ThingValidationException.class, ThingValidationException.handleException);
-				exception(ThingException.class, ThingException.handleThingRegistrationException);
-				exception(RemoteSparqlEndpointException.class, RemoteSparqlEndpointException.handleRemoteException);
-				exception(Exception.class, Utils.handleException);
-			});
+			
 			path("/search", () -> {
 				get("/jsonpath", JsonPathController.solveJsonPath);
 				exception(SearchJsonPathException.class, SearchJsonPathException.handleSearchJsonPathException);
@@ -104,9 +93,24 @@ public class Directory {
 			});
 			path("/events", () -> {
 				get("", EventsController.subscribe);
-				get("/create", EventsController.subscribeCreate);
-				get("/update", EventsController.subscribeUpdate);
-				get("/delete", EventsController.subscribeDelete);
+				get("/thing_created", EventsController.subscribeCreate);
+				get("/thing_updated", EventsController.subscribeUpdate);
+				get("/thing_deleted", EventsController.subscribeDelete);
+			});
+			path("/things", () -> {
+				get("", ThingsController.listing);
+				get("/", ThingsController.listing);
+				get("/:id", ThingsController.retrieval);
+				post("/", ThingsController.registrationAnonymous);
+				post("", ThingsController.registrationAnonymous);
+				put("/:id", ThingsController.registrationUpdate);
+				patch("/:id", ThingsController.partialUpdate);
+				delete("/:id", ThingsController.deletion);
+				exception(ThingValidationException.class, ThingValidationException.handleException);
+				exception(ThingException.class, ThingException.handleThingRegistrationException);
+				exception(RemoteSparqlEndpointException.class, RemoteSparqlEndpointException.handleRemoteException);
+				exception(NotFoundException.class, NotFoundException.handleNotFoundExceptionException);
+				exception(Exception.class, Utils.handleException);
 			});
 		});
 		
@@ -122,8 +126,7 @@ public class Directory {
 			String logStr = Utils.buildMessage(request.requestMethod(), " ", request.pathInfo());
 			Directory.LOGGER.info(logStr);
 		});
-		
-		
+	
 	}
 	
 //	public static final Route redirect = (Request request, Response response) -> {
@@ -179,6 +182,7 @@ public class Directory {
 		try {
 			Files.write(configuration.toJson().getBytes(), Directory.CONFIGURATION_FILE);
 		}catch(Exception e) {
+			e.printStackTrace();
 			LOGGER.error(e.toString());
 		}
 	}

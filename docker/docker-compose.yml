@@ -9,7 +9,7 @@ services:
     ports:
       - '3030:3030'
   wothive:
-    image: acimmino/wot-hive:auroral-dev
+    image: acimmino/wot-hive:latest
     # volumes:
     # - ./configuration.json:/usr/src/wothive/configuration.json
     ports:

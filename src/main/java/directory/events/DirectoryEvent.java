@@ -2,9 +2,9 @@ package directory.events;
 
 public enum DirectoryEvent {
 
-	CREATE("create"),
-	DELETE("delete"),
-	UPDATE("update"),
+	CREATE("thing_created"),
+	DELETE("thing_deleted"),
+	UPDATE("thing_updated"),
 	ALL("all");
 	String event;
 	

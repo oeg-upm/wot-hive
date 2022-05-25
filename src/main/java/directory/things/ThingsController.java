@@ -115,7 +115,7 @@ public class ThingsController {
 		
 	public static final Route registrationAnonymous = (Request request, Response response) -> {
 		RDFFormat format = hasValidMime(request.headers(Utils.HEADER_CONTENT_TYPE), false);
-		String tdId = Utils.buildMessage("directory:anon:",UUID.randomUUID().toString());
+		String tdId = Utils.buildMessage("urn:uuid:",UUID.randomUUID().toString());
 			
 		if(format.equals(RDFFormat.JSONLD_FRAME_FLAT)) {
 			JsonObject thing = hasValidBody(request.body());

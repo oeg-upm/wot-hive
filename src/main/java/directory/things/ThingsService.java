@@ -3,16 +3,22 @@ package directory.things;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.resultset.ResultsFormat;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import directory.Utils;
 import directory.events.DirectoryEvent;
 import directory.events.EventsController;
+import directory.exceptions.NotFoundException;
 import directory.exceptions.RemoteSparqlEndpointException;
 import directory.exceptions.ThingException;
 import directory.triplestore.Sparql;
@@ -125,7 +131,30 @@ public class ThingsService {
 			td.add("@type", (new Gson()).fromJson( Things.inject(td, "@type", "Thing"), JsonElement.class));
 		if(Utils.InjectRegistrationInfo) {
 			//TODO:
+			JsonArray contexts = new JsonArray();
+			if(! (td.get("@context") instanceof JsonArray)) {
+				contexts.add(td.get("@context").getAsString());
+			}else {
+				contexts = td.get("@context").getAsJsonArray();
+			}
+			contexts.add(Utils.DISCOVERY_CONTEXT);
+			td.add("@context", contexts);
+			
+			JsonObject registrationInfo = new JsonObject();
+			if(!td.has("registration")) {
+				registrationInfo.addProperty("created", now());
+			}else {
+				registrationInfo = td.get("registration").getAsJsonObject();
+			}
+			registrationInfo.addProperty("modified", now());
+			td.add("registration", registrationInfo);
 		}
+	}
+	
+	private static final DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+	protected static String now() {
+		DateTime date = new DateTime();
+		return fmt.print(date);
 	}
 	
 	/**
@@ -194,7 +223,7 @@ public class ThingsService {
 	public static void deleteThing(String id) {
 		String graphId = createGraphId(id);
 		if(!exists(graphId))
-			throw new ThingException(EXCEPTION_MSG_NOT_FOUND);
+			throw new NotFoundException(EXCEPTION_MSG_NOT_FOUND);
 		
 		String query = Utils.buildMessage(QUERY_CLEAR_GRAPH,graphId,QUERY_CLOSE_URI);
 		Sparql.update(query);
@@ -204,11 +233,7 @@ public class ThingsService {
 	}
 
 	
-//	private static final DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-//	private static String now() {
-//		DateTime date = new DateTime();
-//		return fmt.print(date);
-//	}
+	
 	
 
 	

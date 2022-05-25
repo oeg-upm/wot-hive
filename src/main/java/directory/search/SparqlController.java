@@ -34,29 +34,37 @@ public class SparqlController {
 		if(query==null)
 			throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_1);
 		
-		String validMime = validateQueryAndMime(query, request.headers("Accept")) ;
-		ResultsFormat format = ResultsFormat.FMT_RS_JSON;
-		System.out.println(ResultsFormat.guessSyntax(validMime));
+		ResultsFormat format = validateQueryAndMime(query, request.headers("Accept")) ;
+		if(format ==null)
+			throw new SearchSparqlException("Provided mime type is not supported");
 		return Sparql.query(query, format);
     };
     
-    private static String validateQueryAndMime(String query, String mimeType) {
-	    	Query parsedQuery = QueryFactory.create(query);
+    private static ResultsFormat validateQueryAndMime(String query, String mimeType) {
+	    Query parsedQuery = QueryFactory.create(query);
 		if(parsedQuery.isAskType() || parsedQuery.isSelectType()) {
-			if(mimeType==null || mimeType.equals(MIME_SPARQL_DEFAULT)) 
-				mimeType = MIME_SPARQL_JSON;
-			if(!mimeType.equals(MIME_SPARQL_TSV) && !mimeType.equals(MIME_SPARQL_CSV) && !mimeType.equals(MIME_SPARQL_JSON) && !mimeType.equals(MIME_SPARQL_XML))
-    				throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_3, Utils.buildMessage("Supported SPARQL mime types are 'application/sparql-results+json' (default if no mime is provided), 'application/sparql-results+xml', 'text/csv', 'text/tab-separated-values' for SELECT and ASK. Provided instead ", mimeType));
+			if(mimeType==null) 
+				return ResultsFormat.FMT_RS_JSON;
+			if(mimeType.equals(MIME_SPARQL_TSV)) {
+				return ResultsFormat.FMT_RS_TSV;	
+			}else if( mimeType.equals(MIME_SPARQL_CSV)) {
+				return ResultsFormat.FMT_RS_CSV;
+			}else if( mimeType.equals(MIME_SPARQL_XML)) {
+				return ResultsFormat.FMT_RS_XML;
+			}else {
+				return ResultsFormat.FMT_RS_JSON; // || mimeType.equals(MIME_SPARQL_DEFAULT)
+			}
+    		//throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_3, Utils.buildMessage("Supported SPARQL mime types are 'application/sparql-results+json' (default if no mime is provided), 'application/sparql-results+xml', 'text/csv', 'text/tab-separated-values' for SELECT and ASK. Provided instead ", mimeType));
 		}else if(parsedQuery.isConstructType() || parsedQuery.isDescribeType()) {
-			if(mimeType==null || mimeType.equals(MIME_SPARQL_DEFAULT)) 
-				mimeType = Utils.MIME_TURTLE;
-			if(mimeType.equals(Utils.MIME_THING) || !Utils.WOT_TD_MYMES.containsKey(mimeType))
-				throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_3, Utils.buildMessage("Supported SPARQL mime types are for CONSTRUCT and DESCRIBE queries are ", Utils.WOT_TD_MYMES.toString(), ". Provided instead ", mimeType));
+			//if(mimeType==null || mimeType.equals(MIME_SPARQL_DEFAULT)) 
+			return ResultsFormat.FMT_RDF_TURTLE;
+			//if(mimeType.equals(Utils.MIME_THING) || !Utils.WOT_TD_MYMES.containsKey(mimeType))
+			//	throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_3, Utils.buildMessage("Supported SPARQL mime types are for CONSTRUCT and DESCRIBE queries are ", Utils.WOT_TD_MYMES.toString(), ". Provided instead ", mimeType));
 		}else {
 			throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_3, "Supported SPARQL queries are SELECT, ASK, DESCRIBE, and CONSTRUCT");
 		}
  
-		return mimeType;
+		
     }
     
     private static String extractQuery(Request request) {

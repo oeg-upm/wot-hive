@@ -37,7 +37,7 @@ import directory.exceptions.ThingException;
 public class Things {
 	
 	
-	public static String TDD_RAW_CONTEXT = "https://raw.githubusercontent.com/oeg-upm/wot-hive/AndreaCimminoArriaga-tdd-context/tdd.jsonld";
+	public static String TDD_RAW_CONTEXT = "https://w3c.github.io/wot-discovery/context/discovery-context.jsonld";
 	
 	protected static String inject(JsonObject json, String key, String injection) {
 		JsonElement value = json.deepCopy().get(key);
@@ -85,14 +85,21 @@ public class Things {
 			Document frameDocument = JsonDocument.of(new StringReader(frame));
 			JsonLdOptions options = new JsonLdOptions();
 			options.setBase(new URI(Directory.getConfiguration().getService().getDirectoryURIBase()));
-			options.setCompactArrays(true);
+			options.setCompactArrays(true); // // IMPORTANT FOR WOT TEST SUITE
+			
 			options.setCompactToRelative(true);
 			options.setExplicit(false);
 			options.setProduceGeneralizedRdf(true);
 			options.setProcessingMode(JsonLdVersion.V1_1);
 			String thing = JsonLd.frame(document, frameDocument).options(options).get().toString();
-	
-			return Utils.toJson(thing.replaceAll(Directory.getConfiguration().getService().getDirectoryURIBase(), ""));
+			JsonObject thingJson = Utils.toJson(thing.replaceAll(Directory.getConfiguration().getService().getDirectoryURIBase(), ""));
+			// TODO: needed for wot validation
+			if(thingJson.has("security") && !(thingJson.get("security") instanceof JsonArray) ) {
+				JsonArray sec = new JsonArray();
+				sec.add(thingJson.remove("security"));
+				thingJson.add("security", sec);
+			}
+			return thingJson;
 		}catch(Exception e) {
 			throw new ThingException("Error translating JSON-LD 1.0 into JSON-LD 1.1");
 		}
@@ -119,7 +126,6 @@ public class Things {
 			JsonLdOptions options = new JsonLdOptions();
 			options.setBase(new URI(Directory.getConfiguration().getService().getDirectoryURIBase()));
 			options.setProcessingMode(JsonLdVersion.V1_1);
-			
 			return JsonLd.toRdf(jsonDocument).options(options).get();
 		} catch (JsonLdError | URISyntaxException e) {
 			throw new ThingException("Error translating JSON-LD 1.1 into RDF");

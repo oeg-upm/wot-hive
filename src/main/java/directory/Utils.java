@@ -29,8 +29,9 @@ import spark.Response;
 
 public class Utils {
 
-	public static boolean InjectRegistrationInfo = false;
-	
+	public static boolean InjectRegistrationInfo = true;
+	public static final String DISCOVERY_CONTEXT = "https://w3c.github.io/wot-discovery/context/discovery-context.jsonld";
+
 	// -- Attributes
 	public static final Map<String,RDFFormat> WOT_TD_MYMES = new HashMap<>();
 	public static final String MIME_CSV = "text/csv";
@@ -46,7 +47,7 @@ public class Utils {
 	public static final String METHOD_PUT = "PUT";
 	
 	public static final String MIME_DIRECTORY_ERROR = "application/problem+json";
-	protected static final String DIRECTORY_VERSION = "WoTHive/0.2.2";
+	protected static final String DIRECTORY_VERSION = "WoTHive/0.2.4";
 	protected static final String WOT_DIRECTORY_LOGO = "\n"+
 			"██╗    ██╗ ██████╗ ████████╗\n" + 
 			"██║    ██║██╔═══██╗╚══██╔══╝\n" + 
@@ -164,6 +165,7 @@ public class Utils {
 		exception.printStackTrace();
 		response.body(Utils.createErrorMessage("WOT-DIR-R", "Unknown exception", exception.toString()));
 	};
+
 
 	
 }
