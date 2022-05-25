@@ -24,7 +24,7 @@ public class EventSystem {
 	private static List<Subscriber> subscriptions = new CopyOnWriteArrayList<>();
 	public static final EventBroadcast broadcaster = new EventBroadcast();
 	private static final String WILDCARD = "*";
-	public static Queue<Triplet<MessageEvent, MessageEvent, DirectoryEvent>> pastEvents = new LinkedBlockingQueue<Triplet<MessageEvent, MessageEvent, DirectoryEvent>>(Directory.getConfiguration().getService().getEventsSize());
+	public static List<Triplet<MessageEvent, MessageEvent, DirectoryEvent>> pastEvents = new CopyOnWriteArrayList<>();
 	// -- Constructor
 	
 	public EventSystem() {
@@ -90,8 +90,8 @@ public class EventSystem {
 		Triplet<MessageEvent, MessageEvent, DirectoryEvent> triplet = new Triplet<>(mesasage, extendedMesasage, event);
 		// PERSIST EVENT IN SYSTEM
 		EventSystem.pastEvents.add(triplet);
-		if(EventSystem.pastEvents.size()>9000)
-			EventSystem.pastEvents.poll();
+		if(EventSystem.pastEvents.size()>Directory.getConfiguration().getService().getEventsSize())
+			EventSystem.pastEvents.remove(0);
 	}
 
 	private void sendEventMessage(Subscriber subscriber, MessageEvent mesasage, MessageEvent extendedMesasage) {
