@@ -9,6 +9,8 @@ import com.google.gson.JsonObject;
 
 import directory.Directory;
 import directory.exceptions.ConfigurationException;
+import sparql.streamline.core.SparqlEndpoint;
+import sparql.streamline.core.SparqlEndpointConfiguration;
 
 public class TriplestoreConfiguration extends AbstractConfiguration{
 
@@ -72,6 +74,10 @@ public class TriplestoreConfiguration extends AbstractConfiguration{
 	}
 
 	// Serialization methods
+	
+	public SparqlEndpoint getSparqlEndpoint() {
+		return new SparqlEndpoint(new SparqlEndpointConfiguration(queryEnpoint.toString(), updateEnpoint.toString(), username, password));
+	}
 	
 	public static TriplestoreConfiguration serialiseFromJson(String rawJson) {
 		JsonObject body = null;

@@ -24,7 +24,8 @@ public class JsonPathController{
 		super();
 	}
 	
-	public static final Route solveJsonPath = (Request request, Response response) -> {		
+	public static final Route solveJsonPath = (Request request, Response response) -> {	
+		System.out.println("Solving syntactic");
 		String query = request.queryParams("query");
 		if(query==null)
 			throw new SearchJsonPathException(SearchJsonPathException.EXCEPTION_CODE_1);
@@ -56,6 +57,7 @@ public class JsonPathController{
 					result.add(tmpElement);
 			}
     		} catch (PathNotFoundException e) {
+    			e.printStackTrace();
 			throw new SearchJsonPathException(SearchJsonPathException.EXCEPTION_CODE_3);
 		}
 

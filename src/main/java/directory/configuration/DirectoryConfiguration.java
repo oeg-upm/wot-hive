@@ -88,21 +88,22 @@ public class DirectoryConfiguration extends AbstractConfiguration{
 		if (body == null)
 			throw new ConfigurationException(ConfigurationException.EXCEPTION_CODE_1,
 					"A valid JSON configuration must be provided. For example: {\"triplestore\":{\"updateEnpoint\":\"http://localhost:3030/sparql\",\"queryEnpoint\":\"http://localhost:3030/sparql\",\"queryUsingGET\":true},\"service\":{\"directoryURIBase\":\"https://oeg.fi.upm.es/wothive/\",\"port\":8080,\"maxThreads\":200,\"minThreads\":2,\"timeOutMillis\":30000},\"validation\":{\"enableShaclValidation\":true,\"enableJsonSchemaValidation\":true,\"schemaFile\":\"./schema.json\",\"shapesFile\":\"./shape.ttl\"}}");
-		
+		DirectoryConfiguration conf = new DirectoryConfiguration();
 		// Validates configuration payload and nested JSONs
 		validatePayload(body, "triplestore", ConfigurationException.EXCEPTION_CODE_2,
 				"Provided JSON lacks of mandatory key \"triplestore\" with a triplestore configuration json. For instance'{\"updateEnpoint\":\"http://localhost:3030/sparql\",\"queryEnpoint\":\"http://localhost:3030/sparql\",\"queryUsingGET\":true}'");
-		TriplestoreConfiguration.serialiseFromJson(body.get("triplestore").getAsJsonObject().toString());
-		
+		TriplestoreConfiguration tc = TriplestoreConfiguration.serialiseFromJson(body.get("triplestore").getAsJsonObject().toString());
+		conf.setTriplestore(tc);
 		validatePayload(body, "service", ConfigurationException.EXCEPTION_CODE_2,
 				"Provided JSON lacks of mandatory key \"service\" with a service configuration json. For instance '{\"directoryURIBase\":\"https://oeg.fi.upm.es/wothive/\",\"port\":8080,\"maxThreads\":200,\"minThreads\":2,\"timeOutMillis\":30000}'");
-		ServiceConfiguration.serialiseFromJson(body.get("service").getAsJsonObject().toString());
-
+		ServiceConfiguration sc = ServiceConfiguration.serialiseFromJson(body.get("service").getAsJsonObject().toString());
+		conf.setService(sc);
+		
 		validatePayload(body, "validation", ConfigurationException.EXCEPTION_CODE_2,
 				"Provided JSON lacks of mandatory key \"validation\" with a validation configuration json. For instance '{\"enableShaclValidation\":true,\"enableJsonSchemaValidation\":true,\"schemaFile\":\"./schema.json\",\"shapesFile\":\"./shape.ttl\"}'");
-		ValidationConfiguration.serialiseFromJson(body.get("validation").getAsJsonObject().toString());
-
-		return (new Gson()).fromJson(body, DirectoryConfiguration.class);
+		ValidationConfiguration vc = ValidationConfiguration.serialiseFromJson(body.get("validation").getAsJsonObject().toString());
+		conf.setValidation(vc);
+		return conf;
 	}
 
 	public static DirectoryConfiguration syncConfiguration() throws IOException {

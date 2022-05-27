@@ -167,8 +167,7 @@ public class Directory {
 		}
 		return "{\"message\":\"error\"}";
 	}
-	
-	
+	 
 
 	// -- Methods
 
