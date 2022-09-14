@@ -78,7 +78,7 @@ public class EventSystem {
 	}
 
 	public void igniteEvent(String thingId, DirectoryEvent event, JsonObject thing) {
-		String id = Utils.buildMessage(thingId, "/events/", event.getEvent());
+		String id = thingId;//Utils.buildMessage(thingId, "/events/", event.getEvent());
 		String data = Utils.buildMessage("{\"id\": \"", thingId, "\"}");
 		String extendedData = prepareExtendedMessage(thing);
 		MessageEvent mesasage = new MessageEvent.Builder().setId(id).setEvent(event.getEvent()).setData(data).build();

@@ -1,5 +1,6 @@
 package directory.exceptions;
 
+import directory.Directory;
 import directory.Utils;
 import spark.ExceptionHandler;
 import spark.Request;
@@ -52,6 +53,8 @@ public class ConfigurationException extends RuntimeException {
 		response.status(400);
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		ConfigurationException specificException = (ConfigurationException) exception;
+		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());
+		Directory.LOGGER.info(logStr);
 		response.body(Utils.createErrorMessage(specificException.code, "JSON configuration not provided, is blank, or contains syntax errors", exception.toString()));
 	};
 

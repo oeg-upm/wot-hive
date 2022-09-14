@@ -47,7 +47,6 @@ public class Utils {
 	public static final String METHOD_PUT = "PUT";
 	
 	public static final String MIME_DIRECTORY_ERROR = "application/problem+json";
-	protected static final String DIRECTORY_VERSION = "WoTHive/0.2.5";
 	protected static final String WOT_DIRECTORY_LOGO = "\n"+
 			"██╗    ██╗ ██████╗ ████████╗\n" + 
 			"██║    ██║██╔═══██╗╚══██╔══╝\n" + 
@@ -61,7 +60,7 @@ public class Utils {
 			"███████║██║██║   ██║█████╗  \n" + 
 			"██╔══██║██║╚██╗ ██╔╝██╔══╝  \n" + 
 			"██║  ██║██║ ╚████╔╝ ███████╗\n" + 
-			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝\n" + 
+			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝ v0.2.6\n" + 
 			"\t© Ontology Engineering Group at Universidad Politectnica de Madrid\n"+
 			"\tAuthor: Andrea Cimmino\n";
 

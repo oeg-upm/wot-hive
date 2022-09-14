@@ -1,5 +1,10 @@
 package directory.search;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.sparql.resultset.ResultsFormat;
@@ -24,23 +29,29 @@ public class SparqlController {
 	private static final String MIME_SPARQL_DEFAULT = "*/*";
 	
 	// -- Constructor
-	private SparqlController() {
+	protected SparqlController() {
 		super();
 	}
 	
 	// -- Methods
 	public static final Route solveSparqlQuery = (Request request, Response response) -> {
 		String query = extractQuery(request);
+		String accept = request.headers("Accept");
 		if(query==null)
 			throw new SearchSparqlException(SearchSparqlException.EXCEPTION_CODE_1);
 		
-		ResultsFormat format = validateQueryAndMime(query, request.headers("Accept")) ;
+		ResultsFormat format = validateQueryAndMime(query, accept) ;
 		if(format ==null)
 			throw new SearchSparqlException("Provided mime type is not supported");
+		
+		String type = extractType(format);
+		response.type(type);
 		return Sparql.query(query, format);
     };
     
-    private static ResultsFormat validateQueryAndMime(String query, String mimeType) {
+	
+    
+    protected static ResultsFormat validateQueryAndMime(String query, String mimeType) {
 	    Query parsedQuery = QueryFactory.create(query);
 		if(parsedQuery.isAskType() || parsedQuery.isSelectType()) {
 			if(mimeType==null) 
@@ -67,7 +78,31 @@ public class SparqlController {
 		
     }
     
-    private static String extractQuery(Request request) {
+   
+    
+    
+  
+    
+    private static String extractType(ResultsFormat format) {
+    	if(format.equals(ResultsFormat.FMT_RS_JSON))
+    		return MIME_SPARQL_JSON;
+    	if(format.equals(ResultsFormat.FMT_RS_CSV))
+    		return MIME_SPARQL_CSV;
+    	if(format.equals(ResultsFormat.FMT_RS_TSV))
+    		return MIME_SPARQL_TSV;
+    	if(format.equals(ResultsFormat.FMT_RS_XML))
+    		return MIME_SPARQL_XML;
+    	if(format.equals(ResultsFormat.FMT_RDF_TURTLE))
+    		return "text/turtle";
+    	return MIME_SPARQL_JSON;
+	}
+
+
+
+
+
+
+	protected static String extractQuery(Request request) {
 	 	String query = null;
 	 	if(Utils.METHOD_GET.equals(request.requestMethod())) {
 			query = request.queryParams("query");
@@ -75,6 +110,21 @@ public class SparqlController {
 			query = request.body();
 			if(query==null || query.isEmpty())
 				query = request.queryParams("query");
+			if(query.contains("infer=") && query.contains("queryLn=SPARQL")) {
+				// graphDb federation
+				String[] fragments = query.split("&");
+				for(String fragment:fragments) {
+					if(fragment.startsWith("query=")) {
+						try {
+							query = URLDecoder.decode(fragment.substring(fragment.indexOf("=")+1), "UTF-8" );
+						} catch (UnsupportedEncodingException e) {
+							throw new SearchSparqlException(e.toString());
+							
+						}
+						break;
+					}
+				}
+			}
 		}
 	 	return query;
  }

@@ -1,5 +1,6 @@
 package directory.exceptions;
 
+import directory.Directory;
 import directory.Utils;
 import spark.ExceptionHandler;
 import spark.Request;
@@ -36,6 +37,8 @@ public class SearchJsonPathException  extends RuntimeException {
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		SearchJsonPathException specificException = (SearchJsonPathException) exception;
 		response.body(Utils.createErrorMessage(specificException.code, "JSONPath expression not provided or contains syntax errors", exception.toString()));
+		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());
+		Directory.LOGGER.info(logStr);
 	};
 
 }

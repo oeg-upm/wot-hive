@@ -144,6 +144,18 @@ public class ThingsController {
 		return "";
 	};
 	
+	public static final Route partialUpdatePatch = (Request request, Response response) -> {
+		if(!request.headers(Utils.HEADER_CONTENT_TYPE).equals("application/merge-patch+json")) 
+			throw new ThingException("Partial updates require header 'Content-Type' with value 'application/merge-patch+json'");
+		String id = hasValidId(request);
+		JsonObject td = hasValidBody(request.body());
+		// DONE : Not mandatory in standard: checkIdsConsistency( td,  id);
+		ThingsService.updateThingPartially(id, td);
+		response.status(204);
+		
+		return "";
+	};
+	
 	// -- Deletion
 	
 	// DELETE delete TD

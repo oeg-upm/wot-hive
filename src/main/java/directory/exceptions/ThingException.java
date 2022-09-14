@@ -1,5 +1,6 @@
 package directory.exceptions;
 
+import directory.Directory;
 import directory.Utils;
 import spark.ExceptionHandler;
 import spark.Request;
@@ -22,6 +23,8 @@ public class ThingException extends RuntimeException{
 		response.type(Utils.MIME_JSON);
 		response.status(400);
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
+		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());
+		Directory.LOGGER.info(logStr);
 		response.body(Utils.createErrorMessage("hive:error:things", "Error happened manipulating Things", exception.toString()));
 	};
 

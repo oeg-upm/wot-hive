@@ -1,5 +1,6 @@
 package directory.exceptions;
 
+import directory.Directory;
 import directory.Utils;
 import spark.ExceptionHandler;
 import spark.Request;
@@ -25,6 +26,8 @@ public class RemoteSparqlEndpointException extends RuntimeException{
 		response.status(400);
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		response.body(Utils.createErrorMessage("WOT-DIR-P", "Internal problem communnicating with remote SPARQL endpoint", exception.toString()));
+		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());
+		Directory.LOGGER.info(logStr);
 	};
 
 }

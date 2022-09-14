@@ -17,6 +17,7 @@ import org.apache.jena.vocabulary.RDF;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import directory.Directory;
 import directory.Utils;
 import spark.ExceptionHandler;
 import spark.Request;
@@ -114,6 +115,8 @@ public class ThingValidationException  extends RuntimeException {
 		}
 
 		response.body(error.toString());
+		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());
+		Directory.LOGGER.info(logStr);
 	};
 	
 	private static final void setErrorDetails(ThingValidationException specificException, JsonObject error) {
@@ -146,10 +149,14 @@ public class ThingValidationException  extends RuntimeException {
 
 	private static void compileErrorSyntactic(JsonObject report, JsonArray errorsArray) {
 		JsonObject error = new JsonObject();
-		error.addProperty(FIELD_KEY, report.get("schemaLocation").getAsString());
-		error.addProperty(DESCRIPTION_KEY, report.get("message").getAsString());
-		error.addProperty("pointerToViolation", report.get("pointerToViolation").getAsString());
-		error.addProperty("keyword", report.get("keyword").getAsString());
+		if(report.has("schemaLocation"))
+			error.addProperty(FIELD_KEY, report.get("schemaLocation").toString());
+		if(report.has("message"))
+			error.addProperty(DESCRIPTION_KEY, report.get("message").toString());
+		if(report.has("pointerToViolation"))
+			error.addProperty("pointerToViolation", report.get("pointerToViolation").toString());
+		if(report.has("keyword"))
+			error.addProperty("keyword", report.get("keyword").toString());
 		errorsArray.add(error);
 		JsonArray nestedErrors = report.get("causingExceptions").getAsJsonArray();
 		if(nestedErrors.size()>0) {

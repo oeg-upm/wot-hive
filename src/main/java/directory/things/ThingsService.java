@@ -137,7 +137,8 @@ public class ThingsService {
 			}else {
 				contexts = td.get("@context").getAsJsonArray();
 			}
-			contexts.add(Utils.DISCOVERY_CONTEXT);
+			if(!jsonArrayContains(contexts,Utils.DISCOVERY_CONTEXT))
+				contexts.add(Utils.DISCOVERY_CONTEXT);
 			td.add("@context", contexts);
 			
 			JsonObject registrationInfo = new JsonObject();
@@ -151,22 +152,33 @@ public class ThingsService {
 		}
 	}
 	
+	protected static boolean jsonArrayContains(JsonArray elems, String elem) {
+		boolean contained=  false;
+		for(int index=0; index < elems.size(); index++) {
+			contained = elems.get(index).equals(elem);
+			if(contained)
+				break;
+		}
+		return contained;
+	}
+	
 	private static final DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
 	protected static String now() {
 		DateTime date = new DateTime();
 		return fmt.print(date);
 	}
 	
+	
+
 	/**
 	 * This method finds a Thing
 	 * @param id of the Thing to be found
 	 * @return returns a JSON-LD 1.1 representation of the Thing
 	 */
 	public static final JsonObject retrieveThing(String id) {
-		System.out.println(id);
 		String graphId = createGraphId(id);
 		if(!exists(graphId))
-			throw new ThingException(Utils.buildMessage("Requested Thing not found"));
+			throw new NotFoundException(Utils.buildMessage("Requested Thing not found"));
 		
 		// Retrieve meta information of Thing
 		String query = Utils.buildMessage("SELECT ?security ?frame ?type WHERE { GRAPH <",MANAGEMENT_GRAPH, "> { <",graphId,"> <hive:b64:security> ?security ; <hive:b64:frame> ?frame; <hive:b64:type> ?type . } }");
@@ -211,10 +223,10 @@ public class ThingsService {
 	
 
 	public static void updateThingPartially(String id, JsonObject partialUpdate) {
-		JsonObject thingJson = retrieveThing(createGraphId(id));
+		JsonObject thingJson = retrieveThing(id); // createGraphId(id)
 		// TODO: mark modification
 		JsonObject newThing = Utils.mergePatch(thingJson, partialUpdate);
-		createThing(newThing, id);
+		updateThing(newThing, id);
 
 		EventsController.eventSystem.igniteEvent(id, DirectoryEvent.UPDATE);
 

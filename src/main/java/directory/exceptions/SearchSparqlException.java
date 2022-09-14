@@ -1,5 +1,6 @@
 package directory.exceptions;
 
+import directory.Directory;
 import directory.Utils;
 import spark.ExceptionHandler;
 import spark.Request;
@@ -35,6 +36,8 @@ public class SearchSparqlException  extends RuntimeException {
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		SearchSparqlException specificException = (SearchSparqlException) exception;
 		response.body(Utils.createErrorMessage(specificException.code, "Sparql expression not provided or contains syntax errors", exception.toString()));
+		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());
+		Directory.LOGGER.info(logStr);
 	};
 
 }

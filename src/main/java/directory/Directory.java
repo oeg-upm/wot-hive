@@ -38,6 +38,7 @@ import directory.exceptions.ThingException;
 import directory.exceptions.ThingValidationException;
 import directory.search.JsonPathController;
 import directory.search.SparqlController;
+import directory.search.SparqlFederationController;
 import directory.search.XPathController;
 import directory.things.ThingsController;
 import directory.triplestore.Sparql;
@@ -88,9 +89,10 @@ public class Directory {
 				get("/xpath", XPathController.solveXPath);
 				get("/sparql", SparqlController.solveSparqlQuery);
 				post("/sparql", SparqlController.solveSparqlQuery);
+				post("/fed-sparql", SparqlFederationController.solveSparqlQueryFederated);
 				exception(SearchSparqlException.class, SearchSparqlException.handleSearchSparqlException);
-
 			});
+			
 			path("/events", () -> {
 				get("", EventsController.subscribe);
 				get("/thing_created", EventsController.subscribeCreate);
@@ -104,7 +106,7 @@ public class Directory {
 				post("/", ThingsController.registrationAnonymous);
 				post("", ThingsController.registrationAnonymous);
 				put("/:id", ThingsController.registrationUpdate);
-				patch("/:id", ThingsController.partialUpdate);
+				patch("/:id", ThingsController.partialUpdatePatch);
 				delete("/:id", ThingsController.deletion);
 				exception(ThingValidationException.class, ThingValidationException.handleException);
 				exception(ThingException.class, ThingException.handleThingRegistrationException);
@@ -118,15 +120,14 @@ public class Directory {
 		redirect.get("/", "/api/things");
 		
 		// Unmatched Routes
-		notFound((Request request, Response response) ->  handleUnmatchedRoutes(request, response, 400));
+		notFound((Request request, Response response) ->  handleUnmatchedRoutes(request, response, 404));
 		internalServerError((Request request, Response response) ->  handleUnmatchedRoutes(request, response, 500));
 
 		after((request, response) -> {
-			response.header("Server", Utils.DIRECTORY_VERSION);
-			String logStr = Utils.buildMessage(request.requestMethod(), " ", request.pathInfo());
+			response.header("Server", "WoTHive");
+			String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo());
 			Directory.LOGGER.info(logStr);
 		});
-	
 	}
 	
 //	public static final Route redirect = (Request request, Response response) -> {
@@ -206,7 +207,6 @@ public class Directory {
 		}
 		// Show service info
 		LOGGER.info(Utils.WOT_DIRECTORY_LOGO);
-		LOGGER.info(Utils.DIRECTORY_VERSION);
 		
 	}
 }
