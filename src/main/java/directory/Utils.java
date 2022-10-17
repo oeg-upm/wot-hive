@@ -60,7 +60,7 @@ public class Utils {
 			"███████║██║██║   ██║█████╗  \n" + 
 			"██╔══██║██║╚██╗ ██╔╝██╔══╝  \n" + 
 			"██║  ██║██║ ╚████╔╝ ███████╗\n" + 
-			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝ v0.2.6\n" + 
+			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝ v0.2.7\n" + 
 			"\t© Ontology Engineering Group at Universidad Politectnica de Madrid\n"+
 			"\tAuthor: Andrea Cimmino\n";
 
@@ -160,6 +160,7 @@ public class Utils {
 	protected static final ExceptionHandler handleException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(400);
+		response.header("charset", "utf-8");
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		exception.printStackTrace();
 		response.body(Utils.createErrorMessage("WOT-DIR-R", "Unknown exception", exception.toString()));

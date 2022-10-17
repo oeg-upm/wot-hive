@@ -95,6 +95,7 @@ public class ThingValidationException  extends RuntimeException {
 	public static final ExceptionHandler handleException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(400);
+		response.header("charset", "utf-8");
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		ThingValidationException specificException = (ThingValidationException) exception;
 		// Set error id and detail

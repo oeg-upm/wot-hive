@@ -52,7 +52,8 @@ public class ThingsController {
 
 		Integer limit = request.queryMap("limit").integerValue();
 		Integer offset = request.queryMap("offset").integerValue();
-
+		if(request.queryMap("offset")!=null)
+			throw new ThingException("ordering is not supported");
 		response.header(Utils.HEADER_CONTENT_TYPE, "application/ld+json");
 		response.status(200);
 		

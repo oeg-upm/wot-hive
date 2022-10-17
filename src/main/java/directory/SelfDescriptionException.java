@@ -18,6 +18,7 @@ public class SelfDescriptionException extends RuntimeException {
 	public static final ExceptionHandler handleSelfDescriptionException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(404);
+		response.header("charset", "utf-8");
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		response.body(Utils.createErrorMessage("WOT-DIR-Introduction", "Self description exception", exception.toString()));
 	};

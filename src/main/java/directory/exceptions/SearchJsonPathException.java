@@ -34,6 +34,7 @@ public class SearchJsonPathException  extends RuntimeException {
 	public static final ExceptionHandler handleSearchJsonPathException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(400);
+		response.header("charset", "utf-8");
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		SearchJsonPathException specificException = (SearchJsonPathException) exception;
 		response.body(Utils.createErrorMessage(specificException.code, "JSONPath expression not provided or contains syntax errors", exception.toString()));

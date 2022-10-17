@@ -127,6 +127,7 @@ public class Directory {
 			response.header("Server", "WoTHive");
 			String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo());
 			Directory.LOGGER.info(logStr);
+			response.header("charset", "utf-8");
 		});
 	}
 	
@@ -160,6 +161,7 @@ public class Directory {
 	private static String handleUnmatchedRoutes(Request request, Response response, int status) {
 		response.type(Utils.MIME_JSON);
 		response.status(status);
+		response.header("charset", "utf-8");
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		if (Directory.LOGGER.isDebugEnabled()) {
 			String logStr = Utils.buildMessage(request.requestMethod(), " ", request.pathInfo(), " - ",

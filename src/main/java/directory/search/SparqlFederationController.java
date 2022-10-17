@@ -32,9 +32,7 @@ public class SparqlFederationController extends SparqlController {
 			throw new SearchSparqlException("Provided SPARQL query provided must be SELECT");
 
 		String queryModified = rewriteQuery(query, urls);
-		System.out.println("federated query:");
-		System.out.println(queryModified);
-		System.out.println("_____");
+
 		ResultsFormat format = validateQueryAndMime(query, request.headers("Accept"));
 		if (format == null)
 			throw new SearchSparqlException("Provided mime type is not supported");

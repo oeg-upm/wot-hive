@@ -22,6 +22,7 @@ public class NotFoundException extends RuntimeException{
 	public static final ExceptionHandler handleNotFoundExceptionException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(404);
+		response.header("charset", "utf-8");
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		response.body(Utils.createErrorMessage("hive:error:things", "Error happened manipulating Things", exception.toString()));
 		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());

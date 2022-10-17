@@ -51,6 +51,7 @@ public class ConfigurationException extends RuntimeException {
 	public static final ExceptionHandler handleConfigurationException = (Exception exception, Request request, Response response) -> {
 		response.type(Utils.MIME_JSON);
 		response.status(400);
+		response.header("charset", "utf-8");
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_DIRECTORY_ERROR);
 		ConfigurationException specificException = (ConfigurationException) exception;
 		String logStr = Utils.buildMessage(request.requestMethod(), " (",String.valueOf(response.status()),") ", request.pathInfo()+" \nmessage:",exception.toString());
