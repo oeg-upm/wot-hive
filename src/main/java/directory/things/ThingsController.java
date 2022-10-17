@@ -90,6 +90,7 @@ public class ThingsController {
 
 		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_THING);
 		response.status(200);
+		
 		return ThingsService.retrieveThing(id);
 		
 	};
