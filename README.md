@@ -85,7 +85,7 @@ Notice that `"queryEndpoint"`and `"updateEndpoint"` must have as value the corre
 
 | Endpoint 	| Method 	| Headers 	| Reference 	| Description 	|
 |---	|---	|---	|---	|---	|
-| `/.well-known/wot-thing-description` 	| `GET` 	| `N/A` 	| [Introduction Mechanim](https://w3c.github.io/wot-discovery/#introduction-well-known) 	| Provides the Thing Description of the WoT Hive directory 	|
+| `/.well-known/wot` 	| `GET` 	| `N/A` 	| [Introduction Mechanism](https://w3c.github.io/wot-discovery/#introduction-well-known) 	| Provides the Thing Description of the WoT Hive directory 	|
 | `/configuration` 	| `GET` 	| `N/A` 	| [Management](https://w3c.github.io/wot-discovery/#exploration-directory-api-management) 	| Provides a JSON with the all the configurations of the WoT Hive 	|
 | `/configuration` 	| `POST` 	| `N/A` 	| [Management](https://w3c.github.io/wot-discovery/#exploration-directory-api-management) 	| The body of the request must contain a JSON with all the configurations of the WoT Hive. 	|
 | `/api/things{?offset,limit,sort_by,sort_order}` 	| `GET` 	| `Accept`: `application/td+json`or `text/turtle`  	| [Listing](https://w3c.github.io/wot-discovery/#exploration-directory-api-registration-listing) 	| Provides a listing of the stored Thing Descriptions in JSON-LD framed or Turtle 	|
