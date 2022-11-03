@@ -69,6 +69,7 @@ public class Directory {
 		path("/.well-known", () -> {
 			get("/wot", Directory.getSelfDescription);
 			exception(SelfDescriptionException.class,SelfDescriptionException.handleSelfDescriptionException);
+			get("/core", Directory.getCoreResources);
 		});
 		path("/configuration", () -> {
 			get("", DirectoryConfigurationController.configuration);
@@ -159,6 +160,11 @@ public class Directory {
 		}
 
 		};
+
+	public static final Route getCoreResources = (Request request, Response response) -> {
+		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_LINK_FORMAT);
+		return "</.well-known/wot>;rt=\"wot.directory\";ct=432";
+	};
 
 	private static String handleUnmatchedRoutes(Request request, Response response, int status) {
 		response.type(Utils.MIME_JSON);

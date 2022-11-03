@@ -37,6 +37,7 @@ public class Utils {
 	public static final String MIME_CSV = "text/csv";
 	public static final String MIME_JSON = "application/json";
 	public static final String MIME_THING = "application/td+json";
+	public static final String MIME_LINK_FORMAT = "application/link-format";
 	public static final RDFFormat THING_RDFFormat = RDFFormat.JSONLD_FRAME_FLAT;
 	public static final String MIME_TURTLE = "text/turtle";
 	public static final String HEADER_CONTENT_TYPE = "Content-Type";
