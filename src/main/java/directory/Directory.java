@@ -62,12 +62,15 @@ public class Directory {
 
 	// -- Main method
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
 		setup();
 		//SparkSwagger.of()
-		
-		get("/.well-known/wot-thing-description", Directory.getSelfDescription);
-		exception(SelfDescriptionException.class,SelfDescriptionException.handleSelfDescriptionException);
+
+		path("/.well-known", () -> {
+			get("/wot", Directory.getSelfDescription);
+			exception(SelfDescriptionException.class,SelfDescriptionException.handleSelfDescriptionException);
+			get("/core", Directory.getCoreResources);
+		});
 		path("/configuration", () -> {
 			get("", DirectoryConfigurationController.configuration);
 			get("/service", DirectoryConfigurationController.serviceConfiguration);
@@ -79,10 +82,10 @@ public class Directory {
 			post("/validation", DirectoryConfigurationController.configureValidation);
 			exception(ConfigurationException.class,ConfigurationException.handleConfigurationException);
 		});
-		
-		
+
+
 		path("/api", () -> {
-			
+
 			path("/search", () -> {
 				get("/jsonpath", JsonPathController.solveJsonPath);
 				exception(SearchJsonPathException.class, SearchJsonPathException.handleSearchJsonPathException);
@@ -92,7 +95,7 @@ public class Directory {
 				post("/fed-sparql", SparqlFederationController.solveSparqlQueryFederated);
 				exception(SearchSparqlException.class, SearchSparqlException.handleSearchSparqlException);
 			});
-			
+
 			path("/events", () -> {
 				get("", EventsController.subscribe);
 				get("/thing_created", EventsController.subscribeCreate);
@@ -115,10 +118,10 @@ public class Directory {
 				exception(Exception.class, Utils.handleException);
 			});
 		});
-		
+
 		redirect.get("", "/api/things");
 		redirect.get("/", "/api/things");
-		
+
 		// Unmatched Routes
 		notFound((Request request, Response response) ->  handleUnmatchedRoutes(request, response, 404));
 		internalServerError((Request request, Response response) ->  handleUnmatchedRoutes(request, response, 500));
@@ -130,7 +133,7 @@ public class Directory {
 			response.header("charset", "utf-8");
 		});
 	}
-	
+
 //	public static final Route redirect = (Request request, Response response) -> {
 //		//Redirect.
 //	}
@@ -139,7 +142,7 @@ public class Directory {
 			String format = request.headers(Utils.HEADER_ACCEPT);
 			JsonObject description = Utils.toJson(Utils.readFile(new File("self-description.json")));
 			String id = 	Utils.buildMessage("http://",request.raw().getServerName(), request.uri());
-			if(request.port()!=80) 
+			if(request.port()!=80)
 				id = Utils.buildMessage("http://",request.raw().getServerName(), ":", String.valueOf(request.port()), request.uri());
 
 			description.addProperty("@id", id);
@@ -151,12 +154,17 @@ public class Directory {
 				response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_THING);
 			}
 			return description;
-			
+
 		}catch(Exception e) {
 			throw new SelfDescriptionException(e.toString());
 		}
-		
+
 		};
+
+	public static final Route getCoreResources = (Request request, Response response) -> {
+		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_LINK_FORMAT);
+		return "</.well-known/wot>;rt=\"wot.directory\";ct=432";
+	};
 
 	private static String handleUnmatchedRoutes(Request request, Response response, int status) {
 		response.type(Utils.MIME_JSON);
@@ -170,14 +178,14 @@ public class Directory {
 		}
 		return "{\"message\":\"error\"}";
 	}
-	 
+
 
 	// -- Methods
 
 	public static DirectoryConfiguration getConfiguration() {
 		return configuration;
 	}
-	
+
 	public static void setConfiguration(DirectoryConfiguration newConfiguration) {
 		configuration = newConfiguration;
 		// Persist new configuration
@@ -188,7 +196,7 @@ public class Directory {
 			LOGGER.error(e.toString());
 		}
 	}
-	
+
 
 	private static final void setup() {
 		// logs configuration
@@ -199,7 +207,7 @@ public class Directory {
 			DirectoryConfiguration newConfiguration = DirectoryConfiguration.syncConfiguration();
 			setConfiguration(newConfiguration);
 			// Apply service configuration only-once
-			
+
 			port(configuration.getService().getPort());
 			threadPool(configuration.getService().getMaxThreads(), configuration.getService().getMinThreads(),
 					configuration.getService().getTimeOutMillis());
@@ -209,6 +217,6 @@ public class Directory {
 		}
 		// Show service info
 		LOGGER.info(Utils.WOT_DIRECTORY_LOGO);
-		
+
 	}
 }
