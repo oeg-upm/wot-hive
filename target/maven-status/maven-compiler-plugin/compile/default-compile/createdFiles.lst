@@ -1,0 +1,11 @@
+directory/search/JsonPathController.class
+directory/exceptions/ConfigurationException.class
+directory/exceptions/ThingValidationException.class
+directory/SelfDescriptionException.class
+directory/configuration/DirectoryConfiguration.class
+directory/exceptions/NotFoundException.class
+directory/configuration/ServiceConfiguration.class
+directory/search/SparqlFederationController.class
+directory/exceptions/SearchJsonPathException.class
+directory/Directory.class
+directory/things/Things.class
