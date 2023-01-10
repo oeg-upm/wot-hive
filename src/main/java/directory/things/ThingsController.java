@@ -23,6 +23,7 @@ import com.apicatalog.jsonld.document.RdfDocument;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 
 import directory.Utils;
 import directory.exceptions.ThingException;
@@ -50,6 +51,7 @@ public class ThingsController {
 		if(!format.equals(RDFFormat.JSONLD_FRAME_FLAT)) 
 			throw new ThingException("Things under a different form than application/td+json are not supported yet; create an issue for requesting this functionality");
 
+		String responseFormat = request.queryMap("format").value();
 		Integer limit = request.queryMap("limit").integerValue();
 		Integer offset = request.queryMap("offset").integerValue();
 		String ordering = request.queryMap("order").value();
@@ -58,13 +60,30 @@ public class ThingsController {
 		response.header(Utils.HEADER_CONTENT_TYPE, "application/ld+json");
 		response.status(200);
 		
-		List<String> thingsIds = ThingsService.retrieveThingsIds(limit, offset);
-		if(limit!=null) // Listing with pagination 
-			prepareListingResponse(response,  limit,  offset,  thingsIds.size());
-		return thingsIds.parallelStream().map(ThingsService::retrieveThing).collect(Collectors.toList());
+		if(responseFormat==null)
+			responseFormat="array";
+		if(responseFormat.equals("array")) {
+			List<String> thingsIds = ThingsService.retrieveThingsIds(limit, offset);
+			if(limit!=null) // Listing with pagination 
+				prepareListingResponse(response,  limit,  offset,  thingsIds.size());
+			return thingsIds.parallelStream().map(ThingsService::retrieveThing).collect(Collectors.toList());
+		} else if(responseFormat.equals("collection")) {// tdd-things-list-pagination-collection
+			if(offset==null)
+				offset = 0;
+			if(limit==null)
+				limit = 20; // TODO get this from a configuration variable
+			List<String> thingsIds = ThingsService.retrieveThingsIds(limit, offset);
+			JsonObject responseBody = prepareCollectionResponse(response,  limit,  offset,  thingsIds.size());
+			JsonArray tds = new JsonArray();
+			for(String id: thingsIds)
+				tds.add(ThingsService.retrieveThing(id));
+			responseBody.add("members", tds);
+			return responseBody;
+		}
+		return null; // Make compiler happy
 	};
-	
-	
+
+
 	private static final void prepareListingResponse(Response response, Integer limit, Integer offset, Integer thingsSize) {
 		if(offset==null)
 			offset = 0;
@@ -79,6 +98,21 @@ public class ThingsController {
 			}
 			response.header(Utils.HEADER_LINK, Utils.buildMessage("</things>; rel=\"canonical\"; etag=\"",eTag,"\""));
 		}
+	}
+	
+	
+	private static final JsonObject prepareCollectionResponse(Response response, Integer limit, Integer offset, Integer thingsSize) {
+		response.header(Utils.HEADER_LINK, Utils.buildMessage("<things?format=collection>; rel=\"canonical\"; etag=\"",eTag,"\""));
+		JsonObject responseBody = new JsonObject();
+		responseBody.addProperty("@context", "https://w3c.github.io/wot-discovery/context/discovery-context.jsonld");
+		responseBody.addProperty("@type", "ThingCollection");
+		responseBody.addProperty("total", thingsSize);
+		responseBody.addProperty("@id", "/things?offset="+offset+"&limit="+limit+"&format=collection");
+		Integer next_offset = offset + limit;
+		if(next_offset<=thingsSize)
+			responseBody.addProperty("next", "/things?offset="+next_offset+"&limit="+limit+"&format=collection");
+		responseBody.addProperty("etag", eTag);
+		return responseBody;
 	}
 	
 	
