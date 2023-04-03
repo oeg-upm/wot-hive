@@ -94,6 +94,10 @@ public class Things {
 			String thing = JsonLd.frame(document, frameDocument).options(options).get().toString();
 			JsonObject thingJson = Utils.toJson(thing.replaceAll(Directory.getConfiguration().getService().getDirectoryURIBase(), ""));
 			// TODO: needed for wot validation
+			if(thingJson.has("hasSecurityConfiguration")) {
+				JsonElement elem = thingJson.remove("hasSecurityConfiguration");
+				thingJson.add("security", elem);
+			}
 			if(thingJson.has("security") && !(thingJson.get("security") instanceof JsonArray) ) {
 				JsonArray sec = new JsonArray();
 				sec.add(thingJson.remove("security"));

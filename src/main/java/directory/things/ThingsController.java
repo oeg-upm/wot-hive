@@ -5,6 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -127,6 +130,22 @@ public class ThingsController {
 		response.status(200);
 		
 		return ThingsService.retrieveThing(id);
+		
+	};
+	
+	public static final Route status = (Request request, Response response) -> {
+		
+		response.header(Utils.HEADER_CONTENT_TYPE, Utils.MIME_JSON);
+		response.status(200);
+		JsonObject statusObject = new JsonObject();
+			statusObject.addProperty("timestamp", ThingsService.now());
+		try{
+			statusObject.addProperty("status", "ok");
+			statusObject.addProperty("things", ThingsService.retrieveThingsIds(null, null).size());
+		}catch(Exception e) {
+			statusObject.addProperty("error", e.getMessage());
+		}
+		return statusObject;
 		
 	};
 	

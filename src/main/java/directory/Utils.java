@@ -61,7 +61,7 @@ public class Utils {
 			"███████║██║██║   ██║█████╗  \n" + 
 			"██╔══██║██║╚██╗ ██╔╝██╔══╝  \n" + 
 			"██║  ██║██║ ╚████╔╝ ███████╗\n" + 
-			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝ v0.2.8\n" + 
+			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝ v0.2.9\n" + 
 			"\t© Powered by the Ontology Engineering Group at Universidad Politectnica de Madrid and W3C WoT community\n";
 
 	

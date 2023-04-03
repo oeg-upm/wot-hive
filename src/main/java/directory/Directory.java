@@ -85,7 +85,6 @@ public class Directory {
 
 
 		path("/api", () -> {
-
 			path("/search", () -> {
 				get("/jsonpath", JsonPathController.solveJsonPath);
 				exception(SearchJsonPathException.class, SearchJsonPathException.handleSearchJsonPathException);
@@ -102,6 +101,8 @@ public class Directory {
 				get("/thing_updated", EventsController.subscribeUpdate);
 				get("/thing_deleted", EventsController.subscribeDelete);
 			});
+			get("/status", ThingsController.status);
+
 			path("/things", () -> {
 				get("", ThingsController.listing);
 				get("/", ThingsController.listing);
@@ -156,7 +157,7 @@ public class Directory {
 			return description;
 
 		}catch(Exception e) {
-			throw new SelfDescriptionException(e.toString());
+			throw new SelfDescriptionException(e.getMessage());
 		}
 
 		};
