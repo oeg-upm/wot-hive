@@ -107,7 +107,9 @@ Notice that `"queryEndpoint"`and `"updateEndpoint"` must have as value the corre
 
 ---
 ### Acknowledgements
-This project has been partially funded by the European project AURORAL from the European Union's Horizont 2020 research and innovation programme under grant agreement Nº101016854.
+This project has been partially funded by:
 
-<img src="https://user-images.githubusercontent.com/4105186/141472288-1b15e0ba-8ae1-414a-a849-222b6bc27754.png" height="75" /> <img src="https://www.auroral.eu/img/logos/bandeira.png"  height="80" />
-
+ | Project       | Grant |
+ |   :---:      |      :---      |
+ | <img src="https://github.com/helio-ecosystem/helio-ecosystem/assets/4105186/c9081c01-69ed-4ba3-aa1a-fddbaaee19c1" height="80"/>   | The European project [AURORAL](https://www.auroral.eu/) from the European Union's Horizont 2020 research and innovation programme under grant agreement Nº101016854. |
+ | <img src="https://github.com/helio-ecosystem/helio-ecosystem/assets/4105186/f1cde449-266f-45f4-a5da-e9c6006f5f3f" height="80"/>  | The European project [COGITO](https://cogito-project.eu/) from the European Union's Horizont 2020 research and innovation programme under grant agreement Nº958310. |
