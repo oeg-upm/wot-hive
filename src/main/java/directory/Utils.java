@@ -30,7 +30,7 @@ import spark.Response;
 public class Utils {
 
 	public static boolean InjectRegistrationInfo = true;
-	public static final String DISCOVERY_CONTEXT = "https://w3c.github.io/wot-discovery/context/discovery-context.jsonld";
+	public static final String DISCOVERY_CONTEXT = "https://w3c.github.io/wot-discovery/context/discovery-core.jsonld";
 
 	// -- Attributes
 	public static final Map<String,RDFFormat> WOT_TD_MYMES = new HashMap<>();
@@ -61,7 +61,7 @@ public class Utils {
 			"███████║██║██║   ██║█████╗  \n" + 
 			"██╔══██║██║╚██╗ ██╔╝██╔══╝  \n" + 
 			"██║  ██║██║ ╚████╔╝ ███████╗\n" + 
-			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝ v0.2.9\n" + 
+			"╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝ v0.2.10\n" + 
 			"\t© Powered by the Ontology Engineering Group at Universidad Politectnica de Madrid and W3C WoT community\n";
 
 	

@@ -37,7 +37,7 @@ import directory.exceptions.ThingException;
 public class Things {
 	
 	
-	public static String TDD_RAW_CONTEXT = "https://w3c.github.io/wot-discovery/context/discovery-context.jsonld";
+	public static String TDD_RAW_CONTEXT = "https://w3c.github.io/wot-discovery/context/discovery-core.jsonld";
 	
 	protected static String inject(JsonObject json, String key, String injection) {
 		JsonElement value = json.deepCopy().get(key);

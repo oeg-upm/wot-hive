@@ -54,7 +54,8 @@ public class Directory {
 	public static final Logger LOGGER = LoggerFactory.getLogger(Directory.class);
 	public static final String MARKER_DEBUG_SPARQL = "[REMOTESPARQL]";
 	public static final String MARKER_DEBUG = "[DIRECTORY]";
-
+	public static final String PORT_ARGUMENT = "--port=";
+	public static final String LABEL_ARGUMENT = "--label=";
 	// -- Constructor
 	private Directory() {
 		super();
@@ -63,7 +64,7 @@ public class Directory {
 	// -- Main method
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
-		setup();
+		setup(args);
 		//SparkSwagger.of()
 
 		path("/.well-known", () -> {
@@ -199,7 +200,7 @@ public class Directory {
 	}
 
 
-	private static final void setup() {
+	private static final void setup(String[] args) {
 		// logs configuration
 		String log4jConfPath = "./log4j.properties";
 		PropertyConfigurator.configure(log4jConfPath);
@@ -208,8 +209,8 @@ public class Directory {
 			DirectoryConfiguration newConfiguration = DirectoryConfiguration.syncConfiguration();
 			setConfiguration(newConfiguration);
 			// Apply service configuration only-once
-
-			port(configuration.getService().getPort());
+			int portNum = fetchPort(args);
+			port(portNum);
 			threadPool(configuration.getService().getMaxThreads(), configuration.getService().getMinThreads(),
 					configuration.getService().getTimeOutMillis());
 		} catch (Exception e) {
@@ -218,6 +219,19 @@ public class Directory {
 		}
 		// Show service info
 		LOGGER.info(Utils.WOT_DIRECTORY_LOGO);
-
+		// TODO: force port
+	}
+	
+	private static final int fetchPort(String[] args) {
+		int port = -1;
+		for(String arg:args) {
+			if(arg.startsWith(PORT_ARGUMENT)) {
+				port = Integer.valueOf(arg.replace(PORT_ARGUMENT,""));
+				break;
+			}
+		}
+		if(port== -1)
+			port = configuration.getService().getPort();
+		return port;
 	}
 }
