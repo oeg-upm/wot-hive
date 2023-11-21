@@ -7,8 +7,10 @@ USAGE="$(basename "$0") [ -h ] [ -e env ]
 
 # Default configuration
 ENV=latest
-REGISTRY=acimmino
-IMAGE_NAME=auroral-fuseky
+#REGISTRY=acimmino
+#IMAGE_NAME=auroral-fuseky
+REGISTRY=ghcr.io
+IMAGE_NAME=auroralh2020/auroral-fuseky
 PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
 
 # Do login

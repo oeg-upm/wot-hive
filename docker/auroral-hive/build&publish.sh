@@ -6,9 +6,11 @@ USAGE="$(basename "$0") [ -h ] [ -e env ]
       -e  environment [ dev (default), prod, ... ]"
 
 # Default configuration
-ENV=0.2.7
+ENV=latest
 REGISTRY=acimmino
 IMAGE_NAME=wot-hive
+#REGISTRY=ghcr.io
+#IMAGE_NAME=auroralh2020/wot-hive
 PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
 
 # Maven using docker / local
