@@ -78,8 +78,13 @@ public class ThingsController {
 			List<String> thingsIds = ThingsService.retrieveThingsIds(limit, offset);
 			JsonObject responseBody = prepareCollectionResponse(response,  limit,  offset,  thingsIds.size());
 			JsonArray tds = new JsonArray();
-			for(String id: thingsIds)
-				tds.add(ThingsService.retrieveThing(id));
+			for(String id: thingsIds) {
+				try {
+					tds.add(ThingsService.retrieveThing(id));
+				}catch(Exception e) {
+					System.out.println(e.getMessage());
+				}
+			}
 			responseBody.add("members", tds);
 			return responseBody;
 		}

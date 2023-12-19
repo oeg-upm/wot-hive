@@ -189,8 +189,9 @@ public class ThingsService {
 		String[] rawResponse = baosRaw.split(",");
 		String security = new String(Base64.getDecoder().decode(rawResponse[0].getBytes()));
 		String frame = new String(Base64.getDecoder().decode(rawResponse[1].getBytes()));
+		frame = fixFrame(frame);
+		// TODO: el context erroneo esta en este frame, hay que ocuparse de el
 		Boolean type = Boolean.valueOf(new String(rawResponse[2]));
-
 		// Retrieve Thing
 		query = Utils.buildMessage("CONSTRUCT {?s ?p ?o } WHERE { GRAPH <",graphId,"> { ?s ?p ?o .} }");
 		baos = Sparql.query(query, ResultsFormat.FMT_RDF_JSONLD);
@@ -206,6 +207,10 @@ public class ThingsService {
 	}
 	
 	
+	private static String fixFrame(String frame) {
+		return frame.replace("https://w3c.github.io/wot-discovery/context/discovery-context.jsonld","https://www.w3.org/2022/wot/discovery");
+	}
+
 	public static List<String> retrieveThingsIds(Integer limit, Integer offset){
 		String query = Utils.buildMessage("SELECT DISTINCT ?graph {  GRAPH <",MANAGEMENT_GRAPH,"> {  ?graph ?p ?o .  } } ");
 		if(limit!=null)
